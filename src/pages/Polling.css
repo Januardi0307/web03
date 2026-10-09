@@ -1,0 +1,364 @@
+/* ================================
+   HASIL POLLING
+================================ */
+
+.polling-hasil {
+  margin-top: 20px;
+}
+
+.polling-hasil h4 {
+  margin: 20px 0 15px;
+  font-size: 18px;
+}
+
+.polling-hasil-item {
+  margin-bottom: 18px;
+}
+
+.polling-hasil-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 7px;
+  font-size: 14px;
+}
+
+.polling-hasil-label span {
+  font-weight: 500;
+}
+
+.polling-hasil-label strong {
+  white-space: nowrap;
+}
+
+.polling-progress {
+  width: 100%;
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.polling-progress-bar {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.polling-persentase {
+  margin-top: 5px;
+  font-size: 13px;
+  color: #666;
+  text-align: right;
+}
+
+.polling-tidak-bisa-memilih {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #666;
+}
+
+ /* ================================
+    POLLING UTAMA
+ ================================ */
+
+.polling-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.polling-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.polling-card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.polling-card p {
+  line-height: 1.6;
+}
+
+.polling-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.polling-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.polling-option:hover {
+  background: #f7f7f7;
+}
+
+.polling-option input {
+  cursor: pointer;
+}
+
+.polling-submit {
+  width: 100%;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.polling-sudah-memilih {
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.polling-tidak-bisa-memilih {
+  line-height: 1.5;
+}
+.polling-total-suara {
+  margin: -5px 0 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.polling-total-suara strong {
+  color: #222;
+}
+
+
+/* =====================================================
+   DATA AI RT
+===================================================== */
+
+.admin-ai {
+  width: 100%;
+  min-width: 0;
+  color: #243247;
+}
+
+.admin-ai-message {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 24px 0;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.admin-ai-form h3 {
+  margin: 0 0 10px;
+  color: #17365d;
+  font-size: 20px;
+}
+
+.admin-ai-form > label {
+  margin-top: 8px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-ai-form input:not([type="checkbox"]),
+.admin-ai-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-ai-form input:focus,
+.admin-ai-form textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-ai-form textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.admin-ai-form > small {
+  margin-top: -5px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.admin-ai-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 0;
+  cursor: pointer;
+}
+
+.admin-ai-checkbox input {
+  width: 17px;
+  height: 17px;
+  accent-color: #2563eb;
+}
+
+.admin-ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-ai-actions button {
+  padding: 10px 17px;
+  border: 1px solid #2563eb;
+  border-radius: 7px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.admin-ai-actions button:hover {
+  background: #1d4ed8;
+}
+
+.admin-ai-actions button:active {
+  transform: translateY(1px);
+}
+
+.admin-ai-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-ai-actions button[type="button"] {
+  border-color: #cbd5e1;
+  background: #fff;
+  color: #475569;
+}
+
+.admin-ai-actions button[type="button"]:hover {
+  background: #f1f5f9;
+}
+
+.admin-ai-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.admin-ai-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+}
+
+.admin-ai-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-ai-card-header h3 {
+  margin: 0;
+  color: #17365d;
+  font-size: 17px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-card-header span {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-ai-card p {
+  margin: 9px 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-card .admin-ai-content {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .admin-ai-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-ai-form,
+  .admin-ai-card {
+    padding: 16px;
+  }
+
+  .admin-ai-form h3 {
+    font-size: 18px;
+  }
+
+  .admin-ai-actions button {
+    flex: 1;
+  }
+
+  .admin-ai-card-header {
+    flex-wrap: wrap;
+  }
+}

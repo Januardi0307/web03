@@ -1,0 +1,363 @@
+/* =========================================
+   ADMIN POLLING
+========================================= */
+
+.admin-polling-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.admin-polling-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-polling-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
+}
+
+/* Informasi polling */
+
+.admin-polling-card h3 {
+  margin: 0 0 12px;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.admin-polling-card p {
+  margin: 6px 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Area aksi */
+
+.admin-polling-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 320px;
+}
+
+/* Status */
+
+.admin-polling-actions strong {
+  width: 100%;
+  margin-bottom: 4px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Semua tombol */
+
+.admin-polling-actions button {
+  min-height: 36px;
+  padding: 8px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Tombol status / edit */
+
+.admin-polling-actions .admin-secondary-button {
+  background: #f8fafc;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.admin-polling-actions .admin-secondary-button:hover {
+  background: #f1f5f9;
+  border-color: #9ca3af;
+}
+
+/* Tombol hapus */
+
+.admin-polling-actions .admin-danger-button {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.admin-polling-actions .admin-danger-button:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+  .admin-polling-card {
+    flex-direction: column;
+  }
+
+  .admin-polling-actions {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .admin-polling-actions strong {
+    text-align: left;
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-polling-card {
+    padding: 17px;
+  }
+
+  .admin-polling-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-polling-actions button {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   STATUS POLLING
+========================================= */
+
+.admin-polling-status {
+  width: auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1;
+  margin: 0 !important;
+}
+
+.admin-polling-status.aktif {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-polling-status.nonaktif {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+/* =========================================
+   FORM BUAT / EDIT POLLING
+========================================= */
+
+.admin-form-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 26px;
+  margin-top: 20px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.admin-form-group {
+  margin-bottom: 24px;
+}
+
+.admin-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.admin-form-group > label {
+  display: block;
+  margin-bottom: 8px;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Input pertanyaan & pilihan */
+
+.admin-form-group > input,
+.polling-admin-option input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-form-group > input:focus,
+.polling-admin-option input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.admin-form-group > input::placeholder,
+.polling-admin-option input::placeholder {
+  color: #9ca3af;
+}
+
+/* Pilihan jawaban */
+
+.polling-admin-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.polling-admin-option input {
+  flex: 1;
+}
+
+/* Tombol hapus pilihan */
+
+.polling-admin-option button {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #dc2626;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.polling-admin-option button:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* Tombol tambah pilihan */
+
+.admin-form-group > .admin-secondary-button {
+  margin-top: 5px;
+}
+
+/* Area tombol bawah */
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #eef0f2;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  .admin-form-card {
+    padding: 18px;
+  }
+
+  .admin-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .admin-form-actions button {
+    width: 100%;
+  }
+}
+
+.admin-polling-voters {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-polling-voters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-polling-voters-header strong {
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.admin-polling-voters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-polling-voter-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.admin-polling-voter-item strong {
+  color: #1e293b;
+}
+
+.admin-polling-voter-item div div {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.admin-polling-voter-item div div strong {
+  color: #334155;
+}
+
+.admin-polling-voter-item small {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .admin-polling-voters-header {
+    align-items: flex-start;
+  }
+
+  .admin-polling-voter-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .admin-polling-voter-item small {
+    white-space: normal;
+  }
+}
