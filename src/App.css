@@ -1299,3 +1299,88 @@ button {
 .ruang-warga-message.pesan-saya .ruang-warga-message-header strong {
   color: #2e7d32;
 }
+
+
+/* WARNA DAN TULISAN KARTU PENGUMUMAN WARGA */
+
+.announcement-card-warna-0 {
+  background-color: #FFE0B2;
+  color: #7A3E00;
+}
+
+.announcement-card-warna-1 {
+  background-color: #D6EAF8;
+  color: #154360;
+}
+
+.announcement-card-warna-2 {
+  background-color: #D5F5E3;
+  color: #145A32;
+}
+
+.announcement-card-warna-3 {
+  background-color: #FFF9C4;
+  color: #665C00;
+}
+
+/* Samakan warna judul, tanggal, dan isi kartu */
+
+.announcement-card-warna-0 h3,
+.announcement-card-warna-0 p,
+.announcement-card-warna-0 .announcement-date,
+.announcement-card-warna-1 h3,
+.announcement-card-warna-1 p,
+.announcement-card-warna-1 .announcement-date,
+.announcement-card-warna-2 h3,
+.announcement-card-warna-2 p,
+.announcement-card-warna-2 .announcement-date,
+.announcement-card-warna-3 h3,
+.announcement-card-warna-3 p,
+.announcement-card-warna-3 .announcement-date {
+  color: inherit;
+}
+
+
+/* WARNA KARTU RENCANA KEGIATAN */
+
+.rencana-kegiatan-warna-0 {
+  background-color: #FFE0B2;
+  color: #7A3E00;
+}
+
+.rencana-kegiatan-warna-1 {
+  background-color: #D6EAF8;
+  color: #154360;
+}
+
+.rencana-kegiatan-warna-2 {
+  background-color: #D5F5E3;
+  color: #145A32;
+}
+
+.rencana-kegiatan-warna-3 {
+  background-color: #FFF9C4;
+  color: #665C00;
+}
+
+/* Warna tulisan mengikuti latar kartu */
+
+.rencana-kegiatan-warna-0 h3,
+.rencana-kegiatan-warna-0 p,
+.rencana-kegiatan-warna-0 .announcement-date,
+.rencana-kegiatan-warna-0 .activity-status,
+.rencana-kegiatan-warna-1 h3,
+.rencana-kegiatan-warna-1 p,
+.rencana-kegiatan-warna-1 .announcement-date,
+.rencana-kegiatan-warna-1 .activity-status,
+.rencana-kegiatan-warna-2 h3,
+.rencana-kegiatan-warna-2 p,
+.rencana-kegiatan-warna-2 .announcement-date,
+.rencana-kegiatan-warna-2 .activity-status,
+.rencana-kegiatan-warna-3 h3,
+.rencana-kegiatan-warna-3 p,
+.rencana-kegiatan-warna-3 .announcement-date,
+.rencana-kegiatan-warna-3 .activity-status {
+  color: inherit;
+}
+

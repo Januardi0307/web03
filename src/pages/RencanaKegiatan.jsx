@@ -30,32 +30,27 @@ function RencanaKegiatan() {
 
             <h3>Belum ada rencana kegiatan</h3>
 
-            <p>
-              Belum terdapat kegiatan yang direncanakan oleh Admin RT.
-            </p>
+            <p>Belum terdapat kegiatan yang direncanakan oleh Admin RT.</p>
           </div>
         ) : (
           activities.map((item) => (
-            <article className="announcement-card" key={item.id}>
+            <article
+              className={`announcement-card rencana-kegiatan-warna-${activities.indexOf(item) % 4}`}
+              key={item.id}
+            >
               <div className="announcement-date">
                 📅 {formatDate(item.date)}
               </div>
 
               <h3>{item.title}</h3>
 
-              <p>
-                🕐 {item.time}
-              </p>
+              <p>🕐 {item.time}</p>
 
-              <p>
-                📍 {item.location}
-              </p>
+              <p>📍 {item.location}</p>
 
               <p>{item.description}</p>
 
-              <div className="activity-status">
-                {item.status}
-              </div>
+              <div className="activity-status">{item.status}</div>
             </article>
           ))
         )}

@@ -47,9 +47,9 @@ function Pengumuman() {
           announcements.map((item) => (
 
             <article
-              className="announcement-card"
-              key={item.id}
-            >
+  className={`announcement-card announcement-card-warna-${announcements.indexOf(item) % 4}`}
+  key={item.id}
+>
 
               <div className="announcement-date">
                 📅 {formatDate(item.date)}
