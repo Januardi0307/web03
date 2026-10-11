@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import Home from "./pages/Home";
@@ -10,10 +10,65 @@ import Polling from "./pages/Polling";
 import RuangWarga from "./pages/RuangWarga";
 import Admin from "./pages/Admin";
 import LoginWarga from "./pages/LoginWarga";
+import AktivasiWarga from "./pages/AktivasiWarga";
+import LoginAdmin from "./pages/LoginAdmin";
+import { supabaseAdmin } from "./lib/supabaseAdmin";
+import { supabase } from "./lib/supabase";
 
 function App() {
   const [activePage, setActivePage] = useState("home");
   const [wargaLogin, setWargaLogin] = useState(null);
+  const [adminLogin, setAdminLogin] = useState(null);
+
+  const handleLogoutWarga = async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Gagal keluar dari akun warga:", error);
+      alert("Gagal keluar. Silakan coba lagi.");
+      return;
+    }
+
+    setWargaLogin(null);
+    setActivePage("home");
+  };
+
+  useEffect(() => {
+    let aktif = true;
+
+    const periksaSesiAdmin = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabaseAdmin.auth.getSession();
+
+      if (!aktif) return;
+
+      if (error) {
+        console.error("Gagal memeriksa sesi Admin:", error);
+        return;
+      }
+
+      if (session?.user) {
+        setAdminLogin(session.user);
+      }
+    };
+
+    periksaSesiAdmin();
+
+    const {
+      data: { subscription },
+    } = supabaseAdmin.auth.onAuthStateChange((_event, session) => {
+      if (!aktif) return;
+
+      setAdminLogin(session?.user ?? null);
+    });
+
+    return () => {
+      aktif = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const renderPage = () => {
     switch (activePage) {
@@ -30,13 +85,30 @@ function App() {
         return <TanyaAI />;
 
       case "polling":
-        return <Polling />;
+        return <Polling adminLogin={adminLogin} wargaLogin={wargaLogin} />;
 
       case "ruang-warga":
-        return <RuangWarga wargaLogin={wargaLogin} />;
+        return <RuangWarga wargaLogin={wargaLogin} adminLogin={adminLogin} />;
 
       case "admin":
-        return <Admin />;
+        return adminLogin ? (
+          <Admin
+  adminUser={adminLogin}
+  onLogout={async () => {
+              await supabaseAdmin.auth.signOut();
+              setAdminLogin(null);
+              setActivePage("admin-login");
+            }}
+          />
+        ) : (
+          <LoginAdmin
+            onLoginSuccess={(user) => {
+              setAdminLogin(user);
+              setActivePage("admin");
+            }}
+            onBack={() => setActivePage("home")}
+          />
+        );
 
       case "login":
         return (
@@ -45,6 +117,26 @@ function App() {
               setWargaLogin(warga);
               setActivePage("home");
             }}
+            onAktivasi={() => setActivePage("aktivasi-warga")}
+          />
+        );
+
+      case "aktivasi-warga":
+        return (
+          <AktivasiWarga
+            onBack={() => setActivePage("login")}
+            onAktivasiBerhasil={() => setActivePage("login")}
+          />
+        );
+
+      case "admin-login":
+        return (
+          <LoginAdmin
+            onLoginSuccess={(user) => {
+              setAdminLogin(user);
+              setActivePage("admin");
+            }}
+            onBack={() => setActivePage("home")}
           />
         );
 
@@ -73,69 +165,81 @@ function App() {
         </div>
 
         <nav className="navigation">
-  <button
-    className={activePage === "home" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("home")}
-  >
-    Beranda
-  </button>
+          <button
+            className={activePage === "home" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("home")}
+          >
+            Beranda
+          </button>
 
-  <button
-    className={activePage === "pengumuman" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("pengumuman")}
-  >
-    Pengumuman
-  </button>
+          <button
+            className={activePage === "pengumuman" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("pengumuman")}
+          >
+            Pengumuman
+          </button>
 
-  <button
-    className={activePage === "rencana" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("rencana")}
-  >
-    Rencana Kegiatan
-  </button>
+          <button
+            className={activePage === "rencana" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("rencana")}
+          >
+            Rencana Kegiatan
+          </button>
 
-  <button
-    className={activePage === "selesai" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("selesai")}
-  >
-    Kegiatan Selesai
-  </button>
+          <button
+            className={activePage === "selesai" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("selesai")}
+          >
+            Kegiatan Selesai
+          </button>
 
-  <button
-    className={`${activePage === "ai" ? "menu-aktif " : ""}ai-button`}
-    onClick={() => setActivePage("ai")}
-  >
-    🤖 Tanya AI RT
-  </button>
+          <button
+            className={`${activePage === "ai" ? "menu-aktif " : ""}ai-button`}
+            onClick={() => setActivePage("ai")}
+          >
+            🤖 Tanya AI RT
+          </button>
 
-  <button
-    className={activePage === "polling" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("polling")}
-  >
-    🗳️ Polling
-  </button>
+          <button
+            className={activePage === "polling" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("polling")}
+          >
+            🗳️ Polling
+          </button>
 
-  <button
-    className={activePage === "ruang-warga" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("ruang-warga")}
-  >
-    💬 Ruang Warga
-  </button>
+          <button
+            className={activePage === "ruang-warga" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("ruang-warga")}
+          >
+            💬 Ruang Warga
+          </button>
 
-  <button
-    className={activePage === "login" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("login")}
-  >
-    👤 Masuk Warga
-  </button>
+          {wargaLogin ? (
+            <>
+              <button type="button" onClick={handleLogoutWarga}>
+                Keluar
+              </button>
 
-  <button
-    className={activePage === "admin" ? "menu-aktif" : ""}
-    onClick={() => setActivePage("admin")}
-  >
-    ⚙️ Admin
-  </button>
-</nav>
+              <button type="button" onClick={handleLogoutWarga}>
+                Ganti Warga
+              </button>
+            </>
+          ) : (
+            <button
+              className={activePage === "login" ? "menu-aktif" : ""}
+              onClick={() => setActivePage("login")}
+            >
+              👤 Masuk Warga
+            </button>
+          )}
+
+          <button
+            className={activePage === "admin" ? "menu-aktif" : ""}
+            onClick={() => setActivePage("admin")}
+          >
+            ⚙️ Admin
+          </button>
+        </nav>
       </header>
 
       {/* CONTENT */}

@@ -1,4 +1,5 @@
 import { useRTData } from "../context/RTDataContext";
+import "./KegiatanSelesai.css";
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString("id-ID", {
@@ -24,7 +25,7 @@ function KegiatanSelesai() {
         </span>
       </div>
 
-      <div className="announcement-list">
+      <div className="announcement-list kegiatan-selesai-list">
 
         {completedActivities.length === 0 ? (
 
@@ -52,42 +53,33 @@ function KegiatanSelesai() {
   key={item.id}
 >
   {item.fotoUrls && item.fotoUrls.length > 0 ? (
-  <div
-    style={{
-      display: "flex",
-      flexWrap: "wrap",
-      gap: "15px",
-      marginBottom: "15px",
-    }}
-  >
+
+<div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "15px",
+    marginBottom: "15px",
+  }}
+>
+
     {item.fotoUrls.map((fotoUrl, index) => (
-      <img
-        key={`${item.id}-${index}`}
-        src={fotoUrl}
-        alt={`Dokumentasi ${item.title} ${index + 1}`}
-        style={{
-          width: "300px",
-          maxWidth: "100%",
-          height: "auto",
-          display: "block",
-          borderRadius: "10px",
-        }}
+     <img
+  key={`${item.id}-${index}`}
+  className="kegiatan-selesai-foto"
+  src={fotoUrl}
+  alt={`Dokumentasi ${item.title} ${index + 1}`}
+
       />
     ))}
   </div>
 ) : (
   item.fotoUrl && (
     <img
-      src={item.fotoUrl}
-      alt={`Dokumentasi ${item.title}`}
-      style={{
-        width: "300px",
-        maxWidth: "100%",
-        height: "auto",
-        display: "block",
-        marginBottom: "15px",
-        borderRadius: "10px",
-      }}
+  className="kegiatan-selesai-foto"
+  src={item.fotoUrl}
+  alt={`Dokumentasi ${item.title}`}
+
     />
   )
 )}

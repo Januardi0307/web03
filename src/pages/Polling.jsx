@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import "./Polling.css";
 
-function Polling() {
+function Polling({ adminLogin, wargaLogin }) {
   console.log("POLLING JSX DIJALANKAN");
 
   const [polling, setPolling] = useState(null);
@@ -17,10 +17,13 @@ function Polling() {
       console.log("LOAD POLLING DIJALANKAN");
 
       const { data, error } = await supabase
-        .from("polling")
-        .select("*")
-        .eq("aktif", true)
-        .order("tanggal_mulai", { ascending: false });
+  .from("polling")
+  .select("*")
+  .eq("aktif", true)
+  .order("tanggal_mulai", { ascending: false });
+
+console.log("HASIL QUERY POLLING:", data);
+console.log("ERROR QUERY POLLING:", error);
 
       if (error) {
         console.error("Gagal memuat polling:", error);
@@ -28,6 +31,12 @@ function Polling() {
         return;
       }
 
+      console.log(
+  "SEMUA POLLING AKTIF DARI BROWSER WARGA:",
+  JSON.stringify(data, null, 2),
+);
+
+console.log("ERROR LOAD POLLING:", error);
       const pollingAktif = data?.[0] || null;
 
       setPolling(pollingAktif);
@@ -44,10 +53,7 @@ function Polling() {
       console.log("User ID:", sessionInfo.session?.user?.id);
       console.log("User Email:", sessionInfo.session?.user?.email);
 
-      const {
-        data: pilihanData,
-        error: pilihanError,
-      } = await supabase
+      const { data: pilihanData, error: pilihanError } = await supabase
         .from("polling_pilihan")
         .select("*")
         .eq("polling_id", pollingAktif.id)
@@ -70,14 +76,30 @@ function Polling() {
 
       setPilihan(pilihanData || []);
 
-      // Cek apakah warga yang sedang login sudah memberikan suara
-      const userId = sessionInfo.session?.user?.id;
+      // Gunakan ID warga dari data login, bukan ID sesi Supabase
+const userId = wargaLogin?.id;
+
+      if (adminLogin) {
+        setSudahMemilih(true);
+      } else if (userId) {
+        const { data: suaraData, error: suaraError } = await supabase
+          .from("polling_suara")
+          .select("id")
+          .eq("polling_id", pollingAktif.id)
+          .eq("warga_id", userId)
+          .maybeSingle();
+
+        if (suaraError) {
+          console.error("Gagal mengecek suara warga:", suaraError);
+        } else if (suaraData) {
+          setSudahMemilih(true);
+        } else {
+          setSudahMemilih(false);
+        }
+      }
 
       if (userId) {
-        const {
-          data: suaraData,
-          error: suaraError,
-        } = await supabase
+        const { data: suaraData, error: suaraError } = await supabase
           .from("polling_suara")
           .select("id")
           .eq("polling_id", pollingAktif.id)
@@ -96,35 +118,38 @@ function Polling() {
       }
 
       const { data: suaraPolling, error: hasilError } = await supabase
-  .from("polling_suara")
-  .select("pilihan_id")
-  .eq("polling_id", pollingAktif.id);
+        .from("polling_suara")
+        .select("pilihan_id")
+        .eq("polling_id", pollingAktif.id);
 
-if (hasilError) {
-  console.error("Gagal mengambil hasil polling:", hasilError);
-} else {
-  const jumlahSuara = {};
+        console.log("DATA SUARA DI POLLING PUBLIK:", suaraPolling);
+console.log("JUMLAH DATA SUARA PUBLIK:", suaraPolling?.length);
 
-  (suaraPolling || []).forEach((suara) => {
-    jumlahSuara[suara.pilihan_id] =
-      (jumlahSuara[suara.pilihan_id] || 0) + 1;
-  });
+      if (hasilError) {
+        console.error("Gagal mengambil hasil polling:", hasilError);
+      } else {
+        const jumlahSuara = {};
 
-  const hasil = (pilihanData || []).map((item) => ({
-    ...item,
-    jumlahSuara: jumlahSuara[item.id] || 0,
-  }));
+        (suaraPolling || []).forEach((suara) => {
+          jumlahSuara[suara.pilihan_id] =
+            (jumlahSuara[suara.pilihan_id] || 0) + 1;
+        });
 
-  console.log("HASIL POLLING:", hasil);
+        const hasil = (pilihanData || []).map((item) => ({
+          ...item,
+          jumlahSuara: jumlahSuara[item.id] || 0,
+        }));
 
-  setHasilPolling(hasil);
-}
+        console.log("HASIL POLLING:", hasil);
+
+        setHasilPolling(hasil);
+      }
 
       setLoading(false);
     };
 
     loadPolling();
-  }, []);
+    }, [adminLogin, wargaLogin]);
 
   const kirimPilihan = async () => {
     if (!pilihanTerpilih) {
@@ -132,21 +157,18 @@ if (hasilError) {
       return;
     }
 
-    const { data: sessionInfo } = await supabase.auth.getSession();
-    const userId = sessionInfo.session?.user?.id;
+    const userId = wargaLogin?.id;
 
     if (!userId) {
       alert("Sesi warga tidak ditemukan. Silakan masuk kembali.");
       return;
     }
 
-    const { error } = await supabase
-      .from("polling_suara")
-      .insert({
-        polling_id: polling.id,
-        pilihan_id: pilihanTerpilih,
-        warga_id: userId,
-      });
+    const { error } = await supabase.from("polling_suara").insert({
+      polling_id: polling.id,
+      pilihan_id: pilihanTerpilih,
+      warga_id: userId,
+    });
 
     if (error) {
       console.error("Gagal menyimpan suara:", error);
@@ -166,205 +188,147 @@ if (hasilError) {
 
     setSudahMemilih(true);
 
-const { data: suaraTerbaru, error: hasilError } = await supabase
-  .from("polling_suara")
-  .select("pilihan_id")
-  .eq("polling_id", polling.id);
+    const { data: suaraTerbaru, error: hasilError } = await supabase
+      .from("polling_suara")
+      .select("pilihan_id")
+      .eq("polling_id", polling.id);
 
-if (hasilError) {
-  console.error("Gagal memperbarui hasil polling:", hasilError);
-} else {
-  const jumlahSuara = {};
+    if (hasilError) {
+      console.error("Gagal memperbarui hasil polling:", hasilError);
+    } else {
+      const jumlahSuara = {};
 
-  (suaraTerbaru || []).forEach((suara) => {
-    jumlahSuara[suara.pilihan_id] =
-      (jumlahSuara[suara.pilihan_id] || 0) + 1;
-  });
+      (suaraTerbaru || []).forEach((suara) => {
+        jumlahSuara[suara.pilihan_id] =
+          (jumlahSuara[suara.pilihan_id] || 0) + 1;
+      });
 
-  const hasilTerbaru = pilihan.map((item) => ({
-    ...item,
-    jumlahSuara: jumlahSuara[item.id] || 0,
-  }));
+      const hasilTerbaru = pilihan.map((item) => ({
+        ...item,
+        jumlahSuara: jumlahSuara[item.id] || 0,
+      }));
 
-  setHasilPolling(hasilTerbaru);
-}
+      setHasilPolling(hasilTerbaru);
+    }
 
     alert("Pilihan Anda berhasil disimpan.");
   };
 
   return (
     <div className="page">
-
       <div className="page-header">
-
         <p>SUARA WARGA</p>
 
         <h2>🗳️ Polling Warga</h2>
 
-        <span>
-          Sampaikan pendapat Anda melalui polling RT.
-        </span>
-
+        <span>Sampaikan pendapat Anda melalui polling RT.</span>
       </div>
 
       {loading ? (
-
         <div className="empty-state">
+          <div className="empty-icon">⏳</div>
 
-          <div className="empty-icon">
-            ⏳
-          </div>
-
-          <h3>
-            Memuat polling...
-          </h3>
-
+          <h3>Memuat polling...</h3>
         </div>
-
       ) : !polling ? (
-
         <div className="empty-state">
+          <div className="empty-icon">🗳️</div>
 
-          <div className="empty-icon">
-            🗳️
-          </div>
+          <h3>Belum ada polling aktif</h3>
 
-          <h3>
-            Belum ada polling aktif
-          </h3>
-
-          <p>
-            Polling yang dibuat Admin RT akan
-            tampil di halaman ini.
-          </p>
-
+          <p>Polling yang dibuat Admin RT akan tampil di halaman ini.</p>
         </div>
-
       ) : (
-
         <div className="polling-card">
-
-          <h3>
-            {polling.judul}
-          </h3>
+          <h3>{polling.judul}</h3>
 
           {sudahMemilih ? (
+            <div className="polling-hasil">
+              <p className="polling-sudah-memilih">
+                {adminLogin
+                  ? "👁️ Mode pemantauan Admin — Anda tidak ikut memberikan suara."
+                  : "✅ Anda sudah memberikan suara."}
+              </p>
+              <h4>Hasil Polling</h4>
 
-  <div className="polling-hasil">
+              <p className="polling-total-suara">
+                Total suara:{" "}
+                <strong>
+                  {hasilPolling.reduce(
+                    (total, item) => total + item.jumlahSuara,
+                    0,
+                  )}
+                </strong>
+              </p>
 
-    <p className="polling-sudah-memilih">
-      ✅ Anda sudah memberikan suara.
-    </p>
+              {(() => {
+                const totalSuara = hasilPolling.reduce(
+                  (total, item) => total + item.jumlahSuara,
+                  0,
+                );
 
-   <h4>
-  Hasil Polling
-</h4>
+                return hasilPolling.map((item) => {
+                  const persentase =
+                    totalSuara > 0
+                      ? ((item.jumlahSuara / totalSuara) * 100).toFixed(1)
+                      : 0;
 
-<p className="polling-total-suara">
-  Total suara: <strong>{hasilPolling.reduce(
-    (total, item) => total + item.jumlahSuara,
-    0
-  )}</strong>
-</p>
+                  return (
+                    <div key={item.id} className="polling-hasil-item">
+                      <div className="polling-hasil-label">
+                        <span>{item.jawaban}</span>
 
-    {(() => {
-      const totalSuara = hasilPolling.reduce(
-        (total, item) => total + item.jumlahSuara,
-        0
-      );
+                        <strong>{item.jumlahSuara} suara</strong>
+                      </div>
 
-      return hasilPolling.map((item) => {
+                      <div className="polling-progress">
+                        <div
+                          className="polling-progress-bar"
+                          style={{
+                            width: `${persentase}%`,
+                          }}
+                        />
+                      </div>
 
-        const persentase =
-          totalSuara > 0
-            ? ((item.jumlahSuara / totalSuara) * 100).toFixed(1)
-            : 0;
+                      <div className="polling-persentase">{persentase}%</div>
+                    </div>
+                  );
+                });
+              })()}
 
-        return (
-          <div
-            key={item.id}
-            className="polling-hasil-item"
-          >
-
-            <div className="polling-hasil-label">
-              <span>
-                {item.jawaban}
-              </span>
-
-              <strong>
-                {item.jumlahSuara} suara
-              </strong>
+              <p className="polling-tidak-bisa-memilih">
+                Anda tidak dapat memberikan suara lagi pada polling ini.
+              </p>
             </div>
+          ) : (
+            <>
+              <div className="polling-options">
+                {pilihan.map((item) => (
+                  <label key={item.id} className="polling-option">
+                    <input
+                      type="radio"
+                      name="polling"
+                      value={item.id}
+                      checked={pilihanTerpilih === item.id}
+                      onChange={() => setPilihanTerpilih(item.id)}
+                    />
 
-            <div className="polling-progress">
-              <div
-                className="polling-progress-bar"
-                style={{
-                  width: `${persentase}%`,
-                }}
-              />
-            </div>
+                    <span>{item.jawaban}</span>
+                  </label>
+                ))}
+              </div>
 
-            <div className="polling-persentase">
-              {persentase}%
-            </div>
-
-          </div>
-        );
-      });
-    })()}
-
-    <p className="polling-tidak-bisa-memilih">
-      Anda tidak dapat memberikan suara lagi pada polling ini.
-    </p>
-
-  </div>
-
-) : (
-
-  <>
-    <div className="polling-options">
-
-      {pilihan.map((item) => (
-
-        <label
-          key={item.id}
-          className="polling-option"
-        >
-
-          <input
-            type="radio"
-            name="polling"
-            value={item.id}
-            checked={pilihanTerpilih === item.id}
-            onChange={() => setPilihanTerpilih(item.id)}
-          />
-
-          <span>
-            {item.jawaban}
-          </span>
-
-        </label>
-
-      ))}
-
-    </div>
-
-    <button
-      type="button"
-      className="polling-submit"
-      onClick={kirimPilihan}
-    >
-      Kirim Pilihan
-    </button>
-  </>
-
-)}
-
+              <button
+                type="button"
+                className="polling-submit"
+                onClick={kirimPilihan}
+              >
+                Kirim Pilihan
+              </button>
+            </>
+          )}
         </div>
-
       )}
-
     </div>
   );
 }

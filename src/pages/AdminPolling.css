@@ -10,15 +10,23 @@
 }
 
 .admin-polling-card {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 20px 24px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   padding: 22px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.admin-polling-card > .admin-polling-voters {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .admin-polling-card:hover {
@@ -49,13 +57,13 @@
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
-  min-width: 320px;
+  min-width: 0;
+  max-width: 100%;
 }
 
-/* Status */
-
 .admin-polling-actions strong {
-  width: 100%;
+  flex-basis: 100%;
+  width: auto;
   margin-bottom: 4px;
   text-align: right;
   font-size: 12px;
@@ -106,17 +114,22 @@
 
 @media (max-width: 800px) {
   .admin-polling-card {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
   }
 
   .admin-polling-actions {
-    min-width: 0;
     justify-content: flex-start;
   }
 
   .admin-polling-actions strong {
     text-align: left;
   }
+
+  .admin-polling-voters-list {
+grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 }
 
 @media (max-width: 500px) {
@@ -132,6 +145,11 @@
   .admin-polling-actions button {
     width: 100%;
   }
+
+.admin-polling-voters-list {
+grid-template-columns: 1fr;
+}
+
 }
 
 /* =========================================
@@ -310,20 +328,32 @@
 }
 
 .admin-polling-voters-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
 }
 
 .admin-polling-voter-item {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  background: #fff1df;
+  border: 1px solid #f5dfc5;
   border-radius: 8px;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.admin-polling-voter-item small {
+  color: #64748b;
+  font-size: 11px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .admin-polling-voter-item strong {

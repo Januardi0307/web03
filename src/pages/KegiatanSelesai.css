@@ -1,0 +1,39 @@
+
+/* Daftar dokumentasi kegiatan selesai */
+.kegiatan-selesai-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Wadah semua foto dalam satu kegiatan */
+.kegiatan-selesai-foto-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Foto mempertahankan rasio aslinya */
+
+.kegiatan-selesai-foto {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  padding: 5px;
+  background: #FFF9C4;
+  box-sizing: border-box;
+}
+
+
+/* Tampilan layar kecil */
+@media (max-width: 480px) {
+  .kegiatan-selesai-foto {
+    width: 100%;
+  }
+}

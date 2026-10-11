@@ -2,50 +2,50 @@ import { useEffect, useState } from "react";
 import { useRTData } from "../context/RTDataContext";
 import AdminDataRT from "./AdminDataRT";
 import { supabase } from "../lib/supabase";
+import { supabaseAdmin } from "../lib/supabaseAdmin";
+
 import "./AdminPolling.css";
 
-function Admin() {
+function Admin({ onLogout, adminUser }) {
+  const namaAdmin =
+    adminUser?.email?.toLowerCase() === "rt.003.07.stb@gmail.com"
+      ? "RT"
+      : "Admin RT";
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  
-const {
-  announcements,
-  activities,
-  completedActivities,
-} = useRTData();
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+  const { announcements, activities, completedActivities } = useRTData();
 
-const getDateDifference = (date) => {
-  if (!date) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const [year, month, day] = date.split("-").map(Number);
-  const itemDate = new Date(year, month - 1, day);
-  itemDate.setHours(0, 0, 0, 0);
+  const getDateDifference = (date) => {
+    if (!date) return null;
 
-  return Math.round(
-    (today - itemDate) / (1000 * 60 * 60 * 24)
-  );
-};
+    const [year, month, day] = date.split("-").map(Number);
+    const itemDate = new Date(year, month - 1, day);
+    itemDate.setHours(0, 0, 0, 0);
 
-const activeAnnouncements = announcements.filter((item) => {
-  const difference = getDateDifference(item.date);
-  return difference !== null && difference <= 10;
-});
+    return Math.round((today - itemDate) / (1000 * 60 * 60 * 24));
+  };
 
-const activeActivities = activities.filter((item) => {
-  if (!item.date) return false;
+  const activeAnnouncements = announcements.filter((item) => {
+    const difference = getDateDifference(item.date);
+    return difference !== null && difference <= 10;
+  });
 
-  const itemDate = new Date(item.date);
-  itemDate.setHours(0, 0, 0, 0);
+  const activeActivities = activities.filter((item) => {
+    if (!item.date) return false;
 
-  return itemDate >= today;
-});
+    const itemDate = new Date(item.date);
+    itemDate.setHours(0, 0, 0, 0);
 
-const recentCompletedActivities = completedActivities.filter((item) => {
-  const difference = getDateDifference(item.date);
-  return difference !== null && difference <= 10;
-});
+    return itemDate >= today;
+  });
+
+  const recentCompletedActivities = completedActivities.filter((item) => {
+    const difference = getDateDifference(item.date);
+    return difference !== null && difference <= 10;
+  });
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -64,20 +64,25 @@ const recentCompletedActivities = completedActivities.filter((item) => {
       case "polling":
         return <AdminPolling />;
 
+      case "aktivasi":
+        return <AdminAktivasi />;
+
+      case "resetPassword":
+        return <AdminResetPassword />;
+
       case "dataRT":
         return <AdminDataRT />;
 
-   
-default:
-  return (
-    <AdminDashboard
-      setActiveMenu={setActiveMenu}
-      jumlahPengumuman={activeAnnouncements.length}
-      jumlahRencana={activeActivities.length}
-      jumlahSelesai={recentCompletedActivities.length}
-    />
-  );
-
+      default:
+        return (
+          <AdminDashboard
+            setActiveMenu={setActiveMenu}
+            jumlahPengumuman={activeAnnouncements.length}
+            jumlahRencana={activeActivities.length}
+            jumlahSelesai={recentCompletedActivities.length}
+            namaAdmin={namaAdmin}
+          />
+        );
     }
   };
 
@@ -103,41 +108,35 @@ default:
             🏠 Dashboard
           </button>
 
-        
+          <button
+            className={activeMenu === "pengumuman" ? "active" : ""}
+            onClick={() => setActiveMenu("pengumuman")}
+          >
+            📢 Pengumuman
+            <span className="announcement-counter">
+              {activeAnnouncements.length}
+            </span>
+          </button>
 
-<button
-  className={activeMenu === "pengumuman" ? "active" : ""}
-  onClick={() => setActiveMenu("pengumuman")}
->
-  📢 Pengumuman
-  <span className="announcement-counter">
-    {activeAnnouncements.length}
-  </span>
-</button>
+          <button
+            className={activeMenu === "rencana" ? "active" : ""}
+            onClick={() => setActiveMenu("rencana")}
+          >
+            📅 Rencana Kegiatan
+            <span className="announcement-counter">
+              {activeActivities.length}
+            </span>
+          </button>
 
-<button
-  className={activeMenu === "rencana" ? "active" : ""}
-  onClick={() => setActiveMenu("rencana")}
->
-  📅 Rencana Kegiatan
-  <span className="announcement-counter">
-    {activeActivities.length}
-  </span>
-</button>
-
-<button
-  className={activeMenu === "selesai" ? "active" : ""}
-  onClick={() => setActiveMenu("selesai")}
->
-  ✅ Kegiatan Selesai
-  <span className="announcement-counter">
-    {recentCompletedActivities.length}
-  </span>
-</button>
-
-
-
-
+          <button
+            className={activeMenu === "selesai" ? "active" : ""}
+            onClick={() => setActiveMenu("selesai")}
+          >
+            ✅ Kegiatan Selesai
+            <span className="announcement-counter">
+              {recentCompletedActivities.length}
+            </span>
+          </button>
 
           <button
             className={activeMenu === "ai" ? "active" : ""}
@@ -159,12 +158,39 @@ default:
           >
             🗳️ Polling
           </button>
+
+          <button
+            className={activeMenu === "aktivasi" ? "active" : ""}
+            onClick={() => setActiveMenu("aktivasi")}
+          >
+            🔑 Aktivasi Akun Warga
+          </button>
+
+          <button
+            className={activeMenu === "resetPassword" ? "active" : ""}
+            onClick={() => setActiveMenu("resetPassword")}
+          >
+            🔐 Reset Password Warga
+          </button>
         </div>
 
         <div className="admin-sidebar-footer">
           RT 03 / RW 07
           <br />
           Karet Setiabudi
+          <button
+            type="button"
+            onClick={onLogout}
+            style={{
+              display: "block",
+              width: "100%",
+              marginTop: "12px",
+              padding: "10px",
+              cursor: "pointer",
+            }}
+          >
+            🚪 Keluar Admin
+          </button>
         </div>
       </aside>
 
@@ -175,16 +201,914 @@ default:
   );
 }
 
+// =====================================================
+// RESET PASSWORD AKUN WARGA
+// =====================================================
+
+function AdminResetPassword() {
+  const [daftarWarga, setDaftarWarga] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [prosesKode, setProsesKode] = useState(null);
+  const [hasilKode, setHasilKode] = useState(null);
+  const [pesanError, setPesanError] = useState("");
+
+  useEffect(() => {
+    async function muatWarga() {
+      setLoading(true);
+      setPesanError("");
+
+      const { data, error } = await supabase
+        .from("warga")
+        .select("id, nama, nik, status, auth_user_id")
+        .eq("status", "Aktif")
+        .not("auth_user_id", "is", null)
+        .order("nama", { ascending: true });
+
+      if (error) {
+        console.error("Gagal memuat warga untuk reset password:", error);
+        setPesanError(
+          "Daftar warga gagal dimuat. Periksa izin akses Supabase.",
+        );
+        setDaftarWarga([]);
+      } else {
+        setDaftarWarga(data || []);
+      }
+
+      setLoading(false);
+    }
+
+    muatWarga();
+  }, []);
+
+  async function buatKodeReset(warga) {
+    setPesanError("");
+    setHasilKode(null);
+    setProsesKode(warga.id);
+
+    try {
+      const { data: sesiData, error: sesiError } =
+        await supabaseAdmin.auth.getSession();
+
+      const tokenAdmin = sesiData?.session?.access_token;
+
+      if (sesiError || !tokenAdmin) {
+        setPesanError("Sesi Admin tidak tersedia. Silakan login ulang.");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        "buat-kode-reset-password",
+        {
+          body: { warga_id: warga.id },
+          headers: {
+            Authorization: `Bearer ${tokenAdmin}`,
+          },
+        },
+      );
+
+      if (error) {
+        console.error("Gagal membuat kode reset:", error);
+
+        let pesanServer = "";
+
+        try {
+          if (error.context) {
+            const response = error.context.clone
+              ? error.context.clone()
+              : error.context;
+            const hasil = await response.json();
+            pesanServer = hasil?.message || hasil?.error || "";
+          }
+        } catch (err) {
+          console.error("Gagal membaca respons reset:", err);
+        }
+
+        setPesanError(
+          pesanServer || error.message || "Kode reset gagal dibuat.",
+        );
+        return;
+      }
+
+      if (!data?.success || !data?.kode) {
+        setPesanError(
+          data?.message || data?.error || "Kode reset gagal dibuat.",
+        );
+        return;
+      }
+
+      setHasilKode({
+        nama: data.nama,
+        kode: data.kode,
+        kedaluwarsa: data.kedaluwarsa_pada,
+      });
+    } catch (err) {
+      console.error("Kesalahan membuat kode reset:", err);
+      setPesanError("Terjadi kesalahan saat membuat kode reset.");
+    } finally {
+      setProsesKode(null);
+    }
+  }
+
+  return (
+    <div className="admin-content">
+      {/* =====================================================
+          RESET PASSWORD AKUN WARGA
+          ===================================================== */}
+      <div
+        style={{
+          marginBottom: "28px",
+          padding: "24px",
+          borderRadius: "16px",
+          background: "linear-gradient(135deg, #f5f3ff, #faf5ff)",
+          border: "1px solid #e9d5ff",
+        }}
+      >
+        <h2 style={{ margin: "0 0 8px", color: "#5b21b6" }}>
+          🔐 Reset Password Warga
+        </h2>
+
+        <p style={{ margin: "0 0 16px", color: "#475569" }}>
+          Buat kode reset bagi warga aktif yang sudah memiliki akun login.
+        </p>
+
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "10px",
+            background: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid #e9d5ff",
+          }}
+        >
+          <span style={{ fontSize: "22px" }}>🔐</span>
+          <div>
+            <div style={{ fontSize: "12px", color: "#64748b" }}>
+              Warga memiliki akun
+            </div>
+            <strong style={{ fontSize: "22px", color: "#7e22ce" }}>
+              {daftarWarga.length}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {pesanError && (
+        <div
+          role="alert"
+          style={{
+            padding: "14px",
+            marginBottom: "20px",
+            borderRadius: "10px",
+            color: "#b91c1c",
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+          }}
+        >
+          ⚠️ {pesanError}
+        </div>
+      )}
+
+      {hasilKode && (
+        <div
+          style={{
+            padding: "22px",
+            marginBottom: "24px",
+            borderRadius: "16px",
+            background: "#f0fdf4",
+            border: "1px solid #86efac",
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: "#166534" }}>
+            ✅ Kode Reset Password Berhasil Dibuat
+          </h3>
+
+          <p>
+            <strong>Nama warga:</strong> {hasilKode.nama}
+          </p>
+
+          <div
+            style={{
+              margin: "16px 0",
+              padding: "20px",
+              textAlign: "center",
+              background: "#ffffff",
+              borderRadius: "12px",
+              border: "1px dashed #16a34a",
+            }}
+          >
+            <div style={{ color: "#64748b", fontSize: "13px" }}>
+              KODE RESET PASSWORD
+            </div>
+
+            <div
+              style={{
+                margin: "8px 0",
+                fontSize: "30px",
+                fontWeight: "800",
+                letterSpacing: "6px",
+                color: "#166534",
+              }}
+            >
+              {hasilKode.kode}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(hasilKode.kode).catch(() => {
+                  setPesanError("Kode tidak dapat disalin otomatis.");
+                });
+              }}
+            >
+              📋 Salin Kode Reset
+            </button>
+          </div>
+
+          <p style={{ marginBottom: 0, color: "#475569" }}>
+            <strong>Kedaluwarsa:</strong>{" "}
+            {hasilKode.kedaluwarsa
+              ? new Date(hasilKode.kedaluwarsa).toLocaleString("id-ID")
+              : "-"}
+          </p>
+        </div>
+      )}
+
+      {loading ? (
+        <p>⏳ Memuat daftar warga...</p>
+      ) : daftarWarga.length === 0 ? (
+        <div
+          style={{
+            padding: "28px",
+            textAlign: "center",
+            border: "1px dashed #cbd5e1",
+            borderRadius: "14px",
+            color: "#64748b",
+          }}
+        >
+          <div style={{ fontSize: "30px" }}>👤</div>
+          Tidak ada warga aktif yang sudah memiliki akun login.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "16px",
+          }}
+        >
+          {daftarWarga.map((warga, index) => (
+            <div
+              key={warga.id}
+              style={{
+                padding: "20px",
+                borderRadius: "14px",
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+                boxShadow: "0 3px 12px rgba(15, 23, 42, 0.05)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "16px",
+                }}
+              >
+                <span style={{ color: "#64748b", fontSize: "13px" }}>
+                  Warga #{index + 1}
+                </span>
+
+                <span
+                  style={{
+                    padding: "5px 10px",
+                    borderRadius: "20px",
+                    background: "#ede9fe",
+                    color: "#6d28d9",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                  }}
+                >
+                  ● Akun terhubung
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  color: "#0f172a",
+                }}
+              >
+                {warga.nama || "Nama belum tersedia"}
+              </div>
+
+              <div
+                style={{
+                  marginTop: "8px",
+                  marginBottom: "18px",
+                  color: "#64748b",
+                  fontSize: "13px",
+                }}
+              >
+                <div style={{ marginBottom: "5px" }}>🪪 NIK</div>
+
+                <div
+                  style={{
+                    color: "#334155",
+                    fontWeight: "600",
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {warga.nik || "-"}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => buatKodeReset(warga)}
+                disabled={prosesKode !== null}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  border: "none",
+                  borderRadius: "9px",
+                  background: prosesKode === warga.id ? "#a78bfa" : "#7c3aed",
+                  color: "#ffffff",
+                  fontWeight: "700",
+                  cursor: prosesKode !== null ? "wait" : "pointer",
+                }}
+              >
+                {prosesKode === warga.id
+                  ? "⏳ Membuat kode..."
+                  : "🔐 Buat Kode Reset"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =====================================================
+// AKTIVASI AKUN WARGA
+// =====================================================
+
+function AdminAktivasi() {
+  const [daftarWarga, setDaftarWarga] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pesanError, setPesanError] = useState("");
+  const [prosesKode, setProsesKode] = useState(null);
+  const [hasilKode, setHasilKode] = useState(null);
+  const [prosesReset, setProsesReset] = useState(null);
+  const [hasilReset, setHasilReset] = useState(null);
+  const [daftarWargaReset, setDaftarWargaReset] = useState([]);
+  const [loadingReset, setLoadingReset] = useState(true);
+
+  useEffect(() => {
+    async function muatWarga() {
+      setLoading(true);
+      setPesanError("");
+
+      const { data, error } = await supabase
+        .from("warga")
+        .select("id, nama, nik, status, auth_user_id")
+        .eq("status", "Aktif")
+        .is("auth_user_id", null)
+        .order("nama", { ascending: true });
+
+      if (error) {
+        console.error("Gagal memuat warga untuk aktivasi:", error);
+        setPesanError("Data warga gagal dimuat. Periksa izin akses Supabase.");
+        setDaftarWarga([]);
+      } else {
+        setDaftarWarga(data || []);
+      }
+
+      setLoading(false);
+    }
+
+    muatWarga();
+  }, []);
+
+  useEffect(() => {
+    async function muatWargaReset() {
+      setLoadingReset(true);
+
+      const { data, error } = await supabase
+        .from("warga")
+        .select("id, nama, nik, status, auth_user_id")
+        .eq("status", "Aktif")
+        .not("auth_user_id", "is", null)
+        .order("nama", { ascending: true });
+
+      if (error) {
+        console.error("Gagal memuat warga untuk reset password:", error);
+        setPesanError("Daftar warga untuk reset password gagal dimuat.");
+        setDaftarWargaReset([]);
+      } else {
+        setDaftarWargaReset(data || []);
+      }
+
+      setLoadingReset(false);
+    }
+
+    muatWargaReset();
+  }, []);
+
+  async function buatKodeAktivasi(warga) {
+    setPesanError("");
+    setHasilKode(null);
+    setProsesKode(warga.id);
+
+    try {
+      const { data: sesiData, error: sesiError } =
+        await supabaseAdmin.auth.getSession();
+
+      console.log("AKTIVASI: SESSION ADA?", Boolean(sesiData?.session));
+
+      console.log(
+        "AKTIVASI: USER ID SESSION:",
+        sesiData?.session?.user?.id ?? null,
+      );
+
+      console.log("AKTIVASI: ERROR SESSION:", sesiError?.message ?? null);
+
+      const { data: sesiAdminData, error: sesiAdminError } =
+        await supabaseAdmin.auth.getSession();
+
+      const tokenAdmin = sesiAdminData?.session?.access_token;
+
+      if (sesiAdminError || !tokenAdmin) {
+        console.error(
+          "AKTIVASI: TOKEN ADMIN TIDAK TERSEDIA",
+          sesiAdminError?.message,
+        );
+        setPesanError("Sesi Admin tidak tersedia. Silakan login ulang.");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        "buat-kode-aktivasi",
+        {
+          body: { warga_id: warga.id },
+          headers: {
+            Authorization: `Bearer ${tokenAdmin}`,
+          },
+        },
+      );
+
+      if (error) {
+        console.error("Gagal membuat kode aktivasi:", error);
+        console.log("HASIL ERROR AKTIVASI:", error);
+        console.log("DATA HASIL AKTIVASI:", data);
+        console.log("STATUS ERROR AKTIVASI:", error?.context?.status);
+
+        try {
+          const isiError = await error.context.clone().json();
+          console.log("PESAN SERVER AKTIVASI:", isiError);
+          console.log("DETAIL PESAN SERVER:", JSON.stringify(isiError));
+        } catch (e) {
+          console.log("GAGAL MEMBACA PESAN SERVER AKTIVASI:", e);
+        }
+
+        let pesanServer = "";
+
+        try {
+          if (error.context) {
+            const response = error.context.clone
+              ? error.context.clone()
+              : error.context;
+            const hasil = await response.json();
+            pesanServer = hasil?.error || "";
+          }
+        } catch (err) {
+          console.error("Gagal membaca pesan server:", err);
+        }
+
+        setPesanError(
+          pesanServer || error.message || "Kode aktivasi gagal dibuat.",
+        );
+        return;
+      }
+
+      if (!data?.success || !data?.kode) {
+        setPesanError(
+          data?.error || "Server tidak mengembalikan kode aktivasi.",
+        );
+        return;
+      }
+      console.log("RESPONS AKTIVASI DARI SERVER:", data);
+      setHasilKode({
+        nama: data.nama,
+        kode: data.kode,
+        kedaluwarsa: data.kedaluwarsa_pada,
+      });
+    } catch (err) {
+      console.error("Kesalahan membuat kode aktivasi:", err);
+      setPesanError("Terjadi kesalahan saat membuat kode aktivasi.");
+    } finally {
+      setProsesKode(null);
+    }
+  }
+
+  async function buatKodeReset(warga) {
+    setPesanError("");
+    setHasilKode(null);
+    setHasilReset(null);
+    setProsesReset(warga.id);
+
+    try {
+      const { data: sesiAdminData, error: sesiAdminError } =
+        await supabaseAdmin.auth.getSession();
+
+      const tokenAdmin = sesiAdminData?.session?.access_token;
+
+      if (sesiAdminError || !tokenAdmin) {
+        setPesanError("Sesi Admin tidak tersedia. Silakan login ulang.");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(
+        "buat-kode-reset-password",
+        {
+          body: { warga_id: warga.id },
+          headers: {
+            Authorization: `Bearer ${tokenAdmin}`,
+          },
+        },
+      );
+
+      if (error) {
+        console.error("Gagal membuat kode reset password:", error);
+
+        let pesanServer = "";
+
+        try {
+          if (error.context) {
+            const response = error.context.clone
+              ? error.context.clone()
+              : error.context;
+            const hasil = await response.json();
+            pesanServer = hasil?.message || hasil?.error || "";
+          }
+        } catch (err) {
+          console.error("Gagal membaca pesan server reset:", err);
+        }
+
+        setPesanError(
+          pesanServer || error.message || "Kode reset gagal dibuat.",
+        );
+        return;
+      }
+
+      if (!data?.success || !data?.kode) {
+        setPesanError(
+          data?.message || data?.error || "Kode reset gagal dibuat.",
+        );
+        return;
+      }
+
+      setHasilReset({
+        nama: data.nama,
+        kode: data.kode,
+        kedaluwarsa: data.kedaluwarsa_pada,
+      });
+    } catch (err) {
+      console.error("Kesalahan membuat kode reset:", err);
+      setPesanError("Terjadi kesalahan saat membuat kode reset password.");
+    } finally {
+      setProsesReset(null);
+    }
+  }
+
+  return (
+    <div className="admin-content">
+      <div
+        style={{
+          marginBottom: "28px",
+          padding: "24px",
+          borderRadius: "16px",
+          background: "linear-gradient(135deg, #eff6ff, #f8fafc)",
+          border: "1px solid #dbeafe",
+        }}
+      >
+        <h2 style={{ margin: "0 0 8px", color: "#1e3a8a" }}>
+          🔑 Aktivasi Akun Warga
+        </h2>
+        <p style={{ margin: "0 0 16px", color: "#475569" }}>
+          Kelola pembuatan kode aktivasi untuk warga yang belum memiliki akun
+          login.
+        </p>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "10px",
+            background: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid #dbeafe",
+          }}
+        >
+          <span style={{ fontSize: "22px" }}>👥</span>
+          <div>
+            <div style={{ fontSize: "12px", color: "#64748b" }}>
+              Warga menunggu aktivasi
+            </div>
+            <strong style={{ fontSize: "22px", color: "#1d4ed8" }}>
+              {daftarWarga.length}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      {pesanError && (
+        <div
+          role="alert"
+          style={{
+            padding: "14px",
+            marginBottom: "20px",
+            borderRadius: "10px",
+            color: "#b91c1c",
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+          }}
+        >
+          ⚠️ {pesanError}
+        </div>
+      )}
+
+      {hasilKode && (
+        <div
+          style={{
+            padding: "22px",
+            marginBottom: "24px",
+            borderRadius: "16px",
+            background: "#f0fdf4",
+            border: "1px solid #86efac",
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: "#166534" }}>
+            ✅ Kode Aktivasi Berhasil Dibuat
+          </h3>
+          <p>
+            <strong>Nama warga:</strong> {hasilKode.nama}
+          </p>
+          <div
+            style={{
+              margin: "16px 0",
+              padding: "20px",
+              textAlign: "center",
+              background: "#ffffff",
+              borderRadius: "12px",
+              border: "1px dashed #16a34a",
+            }}
+          >
+            <div style={{ color: "#64748b", fontSize: "13px" }}>
+              KODE AKTIVASI
+            </div>
+            <div
+              style={{
+                margin: "8px 0",
+                fontSize: "30px",
+                fontWeight: "800",
+                letterSpacing: "6px",
+                color: "#166534",
+              }}
+            >
+              {hasilKode.kode}
+            </div>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(hasilKode.kode)}
+            >
+              📋 Salin Kode
+            </button>
+          </div>
+          <p style={{ marginBottom: 0, color: "#475569" }}>
+            <strong>Kedaluwarsa:</strong>{" "}
+            {new Date(hasilKode.kedaluwarsa).toLocaleString("id-ID")}
+          </p>
+        </div>
+      )}
+
+      {loading ? (
+        <p>⏳ Memuat data warga...</p>
+      ) : daftarWarga.length === 0 ? (
+        <div
+          style={{
+            padding: "28px",
+            textAlign: "center",
+            border: "1px dashed #cbd5e1",
+            borderRadius: "14px",
+            color: "#64748b",
+          }}
+        >
+          <div style={{ fontSize: "30px" }}>🎉</div>
+          Tidak ada warga aktif yang menunggu aktivasi.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "16px",
+          }}
+        >
+          {daftarWarga.map((warga, index) => (
+            <div
+              key={warga.id}
+              style={{
+                padding: "20px",
+                borderRadius: "14px",
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+                boxShadow: "0 3px 12px rgba(15, 23, 42, 0.05)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "16px",
+                }}
+              >
+                <span style={{ color: "#64748b", fontSize: "13px" }}>
+                  Warga #{index + 1}
+                </span>
+                <span
+                  style={{
+                    padding: "5px 10px",
+                    borderRadius: "20px",
+                    background: "#dcfce7",
+                    color: "#166534",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                  }}
+                >
+                  ● {warga.status}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "700",
+                  color: "#0f172a",
+                }}
+              >
+                {warga.nama || "Nama belum tersedia"}
+              </div>
+
+              <div
+                style={{
+                  marginTop: "8px",
+                  marginBottom: "18px",
+                  color: "#64748b",
+                  fontSize: "13px",
+                }}
+              >
+                <div style={{ marginBottom: "5px" }}>🪪 NIK</div>
+                <div
+                  style={{
+                    color: "#334155",
+                    fontWeight: "600",
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {warga.nik || "-"}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => buatKodeAktivasi(warga)}
+                disabled={prosesKode !== null}
+                style={{
+                  width: "100%",
+                  padding: "11px 14px",
+                  border: "none",
+                  borderRadius: "9px",
+                  background: prosesKode === warga.id ? "#94a3b8" : "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: "700",
+                  cursor: prosesKode !== null ? "wait" : "pointer",
+                }}
+              >
+                {prosesKode === warga.id
+                  ? "⏳ Membuat kode..."
+                  : "🔑 Buat Kode Aktivasi"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasilReset && (
+        <div
+          style={{
+            padding: "22px",
+            marginBottom: "24px",
+            borderRadius: "16px",
+            background: "#f0fdf4",
+            border: "1px solid #86efac",
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: "#166534" }}>
+            ✅ Kode Reset Password Berhasil Dibuat
+          </h3>
+          <p>
+            <strong>Nama warga:</strong> {hasilReset.nama}
+          </p>
+          <div
+            style={{
+              margin: "16px 0",
+              padding: "20px",
+              textAlign: "center",
+              background: "#ffffff",
+              borderRadius: "12px",
+              border: "1px dashed #16a34a",
+            }}
+          >
+            <div style={{ color: "#64748b", fontSize: "13px" }}>
+              KODE RESET PASSWORD
+            </div>
+            <div
+              style={{
+                margin: "8px 0",
+                fontSize: "30px",
+                fontWeight: "800",
+                letterSpacing: "6px",
+                color: "#166534",
+              }}
+            >
+              {hasilReset.kode}
+            </div>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(hasilReset.kode)}
+            >
+              📋 Salin Kode Reset
+            </button>
+          </div>
+          <p style={{ marginBottom: 0, color: "#475569" }}>
+            <strong>Kedaluwarsa:</strong>{" "}
+            {new Date(hasilReset.kedaluwarsa).toLocaleString("id-ID")}
+          </p>
+        </div>
+      )}
+
+      {loadingReset ? (
+        <p>⏳ Memuat daftar warga untuk reset password...</p>
+      ) : daftarWargaReset.length === 0 ? (
+        <div
+          style={{
+            padding: "28px",
+            textAlign: "center",
+            border: "1px dashed #cbd5e1",
+            borderRadius: "14px",
+            color: "#64748b",
+          }}
+        >
+          <div style={{ fontSize: "30px" }}>👤</div>
+          Tidak ada warga aktif yang sudah memiliki akun login.
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "16px",
+          }}
+        ></div>
+      )}
+    </div>
+  );
+}
+
 /* =====================================================
    DASHBOARD
 ===================================================== */
+
 
 function AdminDashboard({
   setActiveMenu,
   jumlahPengumuman,
   jumlahRencana,
   jumlahSelesai,
+  namaAdmin,
 }) {
+
   return (
     <div>
       <div className="admin-topbar">
@@ -193,11 +1117,13 @@ function AdminDashboard({
           <h2>Dashboard RT</h2>
         </div>
 
-        <div className="admin-user">👤 Admin RT</div>
+<div className="admin-user">👤 {namaAdmin}</div>
+<h3>Selamat datang, {namaAdmin} 👋</h3>
       </div>
 
       <div className="admin-welcome">
-        <h3>Selamat datang, Admin RT 👋</h3>
+        <div className="admin-user">👤 {namaAdmin}</div>
+<h3>Selamat datang, {namaAdmin} 👋</h3>
 
         <p>
           Kelola informasi dan kegiatan warga RT 03 / RW 07 Karet Setiabudi
@@ -210,7 +1136,7 @@ function AdminDashboard({
           <span>📢</span>
           <div>
             <small>Pengumuman</small>
-           <strong>{jumlahRencana}</strong>
+            <strong>{jumlahRencana}</strong>
           </div>
         </div>
 
@@ -986,9 +1912,7 @@ function AdminSelesai() {
             type: file.type,
           });
 
-          const img = await createImageBitmap(blob, {
-            imageOrientation: "from-image",
-          });
+          const img = await createImageBitmap(blob);
 
           const maxSize = 1600;
 
@@ -1143,7 +2067,6 @@ function AdminSelesai() {
 
               data = result.data;
               error = result.error;
-             
             } else {
               const result = await supabase
                 .from("kegiatan_selesai")
@@ -1161,8 +2084,6 @@ function AdminSelesai() {
 
               data = result.data;
               error = result.error;
-
-           
             }
 
             /* =====================================================
@@ -1368,7 +2289,6 @@ function AdminSelesai() {
                     return;
                   }
                 }
-               
               }
             }
 
@@ -1496,13 +2416,7 @@ function AdminSelesai() {
                   Foto yang sudah tersimpan:
                 </p>
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "15px",
-                  }}
-                >
+                <div className="kegiatan-selesai-foto-list">
                   {existingPhotos.map((fotoUrl, index) => (
                     <div
                       key={`${fotoUrl}-${index}`}
@@ -1655,13 +2569,7 @@ function AdminSelesai() {
                         key={`${item.id}-${index}`}
                         src={fotoUrl}
                         alt={`Dokumentasi kegiatan ${index + 1}`}
-                        style={{
-                          width: "300px",
-                          maxWidth: "100%",
-                          height: "auto",
-                          display: "block",
-                          borderRadius: "10px",
-                        }}
+                        className="completed-photo"
                       />
                     ))}
                   </div>
@@ -1670,14 +2578,7 @@ function AdminSelesai() {
                     <img
                       src={item.fotoUrl}
                       alt="Dokumentasi kegiatan"
-                      style={{
-                        width: "300px",
-                        maxWidth: "100%",
-                        height: "auto",
-                        display: "block",
-                        marginBottom: "15px",
-                        borderRadius: "10px",
-                      }}
+                     className="completed-photo"
                     />
                   )
                 )}
@@ -1727,41 +2628,142 @@ function AdminSelesai() {
                   Edit
                 </button>
 
-                <button
-                  type="button"
-                  className="btn-delete"
-                  onClick={async () => {
-                    const yakin = window.confirm(
-                      "Apakah Anda yakin ingin menghapus dokumentasi kegiatan ini?",
-                    );
 
-                    if (!yakin) return;
 
-                    const { error } = await supabase
-                      .from("kegiatan_selesai")
-                      .delete()
-                      .eq("id", item.id);
+<button
+  type="button"
+  className="btn-delete"
+  onClick={async () => {
+    const yakin = window.confirm(
+      "Apakah Anda yakin ingin menghapus dokumentasi kegiatan ini beserta foto-fotonya?"
+    );
 
-                    if (error) {
-                      console.error("Gagal menghapus kegiatan selesai:", error);
+    if (!yakin) return;
 
-                      alert(
-                        "Kegiatan gagal dihapus dari Supabase.\n\n" +
-                          error.message,
-                      );
+    try {
+      // 1. Ambil data kegiatan sebelum dihapus
+      const { data: kegiatan, error: kegiatanError } =
+        await supabase
+          .from("kegiatan_selesai")
+          .select("id, foto_url")
+          .eq("id", item.id)
+          .single();
 
-                      return;
-                    }
+      if (kegiatanError) throw kegiatanError;
 
-                    setCompletedActivities((prev) =>
-                      prev.filter((activity) => activity.id !== item.id),
-                    );
+      // 2. Ambil seluruh foto tambahan
+      const { data: fotoTambahan, error: fotoError } =
+        await supabase
+          .from("kegiatan_selesai_foto")
+          .select("id, foto_url, kegiatan_id")
+          .eq("kegiatan_id", item.id);
 
-                    alert("Dokumentasi kegiatan berhasil dihapus.");
-                  }}
-                >
-                  Hapus
-                </button>
+      if (fotoError) throw fotoError;
+
+      const semuaUrl = [
+        kegiatan?.foto_url,
+        ...(fotoTambahan || []).map((foto) => foto.foto_url),
+      ].filter(Boolean);
+
+      const urlUnik = [...new Set(semuaUrl)];
+      const fileYangAkanDihapus = [];
+
+      // 3. Periksa apakah foto masih digunakan kegiatan lain
+      for (const fotoUrl of urlUnik) {
+        const { data: kegiatanLain, error: cekKegiatanError } =
+          await supabase
+            .from("kegiatan_selesai")
+            .select("id")
+            .eq("foto_url", fotoUrl)
+            .neq("id", item.id)
+            .limit(1);
+
+        if (cekKegiatanError) throw cekKegiatanError;
+
+        const { data: fotoLain, error: cekFotoError } =
+          await supabase
+            .from("kegiatan_selesai_foto")
+            .select("id, kegiatan_id")
+            .eq("foto_url", fotoUrl);
+
+        if (cekFotoError) throw cekFotoError;
+
+        const dipakaiKegiatanLain =
+          (kegiatanLain || []).length > 0 ||
+          (fotoLain || []).some(
+            (foto) => String(foto.kegiatan_id) !== String(item.id)
+          );
+
+        if (dipakaiKegiatanLain) continue;
+
+        // Hanya proses URL dari bucket kegiatan-selesai
+        const url = new URL(fotoUrl);
+        const marker =
+          "/storage/v1/object/public/kegiatan-selesai/";
+        const posisi = url.pathname.indexOf(marker);
+
+        if (posisi === -1) {
+          console.warn(
+            "URL bukan dari bucket kegiatan-selesai, dilewati:",
+            fotoUrl
+          );
+          continue;
+        }
+
+        const filePath = decodeURIComponent(
+          url.pathname.substring(posisi + marker.length)
+        );
+
+        if (filePath) {
+          fileYangAkanDihapus.push(filePath);
+        }
+      }
+
+      // 4. Hapus foto dari Storage terlebih dahulu
+      const daftarFileUnik = [...new Set(fileYangAkanDihapus)];
+
+      if (daftarFileUnik.length > 0) {
+        const { error: hapusStorageError } =
+          await supabase.storage
+            .from("kegiatan-selesai")
+            .remove(daftarFileUnik);
+
+        if (hapusStorageError) {
+          throw hapusStorageError;
+        }
+      }
+
+      // 5. Hapus kegiatan dari database
+      // Foto tambahan ikut terhapus melalui ON DELETE CASCADE
+      const { error: hapusKegiatanError } = await supabase
+        .from("kegiatan_selesai")
+        .delete()
+        .eq("id", item.id);
+
+      if (hapusKegiatanError) throw hapusKegiatanError;
+
+      // 6. Perbarui tampilan tanpa refresh
+      setCompletedActivities((prev) =>
+        prev.filter(
+          (activity) => String(activity.id) !== String(item.id)
+        )
+      );
+
+      alert("Dokumentasi kegiatan berhasil dihapus.");
+    } catch (error) {
+      console.error("Gagal menghapus dokumentasi:", error);
+
+      alert(
+        "Penghapusan dokumentasi mengalami kendala.\n\n" +
+          error.message
+      );
+    }
+  }}
+>
+  Hapus
+</button>
+
+
               </div>
             </div>
           ))}
@@ -1774,7 +2776,6 @@ function AdminSelesai() {
 /* =====================================================
    AI
 ===================================================== */
-
 
 function AdminAI() {
   const [items, setItems] = useState([]);
@@ -1832,9 +2833,7 @@ function AdminAI() {
     setForm({
       judul: item.judul || "",
       kategori: item.kategori || "Informasi Umum",
-      keywords: Array.isArray(item.keywords)
-        ? item.keywords.join(", ")
-        : "",
+      keywords: Array.isArray(item.keywords) ? item.keywords.join(", ") : "",
       isi: item.isi || "",
       sumber: item.sumber || "",
       tanggal_mulai: item.tanggal_mulai || "",
@@ -1876,9 +2875,7 @@ function AdminAI() {
           .from("ai_knowledge_tambahan")
           .update(payload)
           .eq("id", editingId)
-      : await supabase
-          .from("ai_knowledge_tambahan")
-          .insert([payload]);
+      : await supabase.from("ai_knowledge_tambahan").insert([payload]);
 
     if (error) {
       console.error("Gagal menyimpan Data AI:", error);
@@ -1895,9 +2892,7 @@ function AdminAI() {
   }
 
   async function handleHapus(item) {
-    const yakin = window.confirm(
-      `Hapus informasi "${item.judul}"?`
-    );
+    const yakin = window.confirm(`Hapus informasi "${item.judul}"?`);
 
     if (!yakin) return;
 
@@ -1920,13 +2915,12 @@ function AdminAI() {
 
   return (
     <div className="admin-ai">
-      
-<AdminPageHeader
-  title="Data AI RT"
-  description="Kelola informasi tambahan yang dapat digunakan AI untuk menjawab pertanyaan warga."
-  buttonText="+ Tambah Informasi"
-  onClick={bukaTambah}
-/>
+      <AdminPageHeader
+        title="Data AI RT"
+        description="Kelola informasi tambahan yang dapat digunakan AI untuk menjawab pertanyaan warga."
+        buttonText="+ Tambah Informasi"
+        onClick={bukaTambah}
+      />
 
       {pesan && (
         <div className="admin-ai-message" role="status">
@@ -1936,35 +2930,27 @@ function AdminAI() {
 
       {showForm && (
         <form className="admin-ai-form" onSubmit={handleSubmit}>
-          <h3>
-            {editingId ? "Edit Informasi AI" : "Tambah Informasi AI"}
-          </h3>
+          <h3>{editingId ? "Edit Informasi AI" : "Tambah Informasi AI"}</h3>
 
           <label>Judul Informasi *</label>
           <input
             required
             value={form.judul}
-            onChange={(e) =>
-              setForm({ ...form, judul: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, judul: e.target.value })}
             placeholder="Contoh: Program Bantuan Kelurahan"
           />
 
           <label>Kategori</label>
           <input
             value={form.kategori}
-            onChange={(e) =>
-              setForm({ ...form, kategori: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, kategori: e.target.value })}
             placeholder="Contoh: Program Kelurahan"
           />
 
           <label>Kata Kunci</label>
           <input
             value={form.keywords}
-            onChange={(e) =>
-              setForm({ ...form, keywords: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, keywords: e.target.value })}
             placeholder="bantuan, kelurahan, pendaftaran"
           />
           <small>Pisahkan kata kunci dengan koma.</small>
@@ -1974,18 +2960,14 @@ function AdminAI() {
             required
             rows={7}
             value={form.isi}
-            onChange={(e) =>
-              setForm({ ...form, isi: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, isi: e.target.value })}
             placeholder="Jelaskan program, persyaratan, cara pengajuan, batas waktu, dan informasi penting lainnya."
           />
 
           <label>Sumber Informasi</label>
           <input
             value={form.sumber}
-            onChange={(e) =>
-              setForm({ ...form, sumber: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, sumber: e.target.value })}
             placeholder="Contoh: Pengumuman resmi Kelurahan"
           />
 
@@ -2011,9 +2993,7 @@ function AdminAI() {
             <input
               type="checkbox"
               checked={form.aktif}
-              onChange={(e) =>
-                setForm({ ...form, aktif: e.target.checked })
-              }
+              onChange={(e) => setForm({ ...form, aktif: e.target.checked })}
             />
             Aktif — dapat digunakan oleh AI
           </label>
@@ -2041,8 +3021,8 @@ function AdminAI() {
           <div>🤖</div>
           <h3>Belum ada informasi tambahan</h3>
           <p>
-            Klik Tambah Informasi untuk memasukkan program dan
-            informasi baru bagi AI RT.
+            Klik Tambah Informasi untuk memasukkan program dan informasi baru
+            bagi AI RT.
           </p>
         </div>
       ) : (
@@ -2051,36 +3031,31 @@ function AdminAI() {
             <div className="admin-ai-card" key={item.id}>
               <div className="admin-ai-card-header">
                 <h3>{item.judul}</h3>
-                <span>
-                  {item.aktif ? "Aktif" : "Nonaktif"}
-                </span>
+                <span>{item.aktif ? "Aktif" : "Nonaktif"}</span>
               </div>
 
-              <p><strong>Kategori:</strong> {item.kategori}</p>
+              <p>
+                <strong>Kategori:</strong> {item.kategori}
+              </p>
               <p className="admin-ai-content">{item.isi}</p>
 
               {item.keywords?.length > 0 && (
                 <p>
-                  <strong>Kata kunci:</strong>{" "}
-                  {item.keywords.join(", ")}
+                  <strong>Kata kunci:</strong> {item.keywords.join(", ")}
                 </p>
               )}
 
               {item.sumber && (
-                <p><strong>Sumber:</strong> {item.sumber}</p>
+                <p>
+                  <strong>Sumber:</strong> {item.sumber}
+                </p>
               )}
 
               <div className="admin-ai-actions">
-                <button
-                  type="button"
-                  onClick={() => bukaEdit(item)}
-                >
+                <button type="button" onClick={() => bukaEdit(item)}>
                   Edit
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleHapus(item)}
-                >
+                <button type="button" onClick={() => handleHapus(item)}>
                   Hapus
                 </button>
               </div>
@@ -2102,15 +3077,15 @@ function AdminPolling() {
   const [dataPolling, setDataPolling] = useState([]);
   const [loadingPolling, setLoadingPolling] = useState(true);
   const [pemilihPolling, setPemilihPolling] = useState(null);
-const [pemilihPollingId, setPemilihPollingId] = useState(null);
-const [loadingPemilih, setLoadingPemilih] = useState(false);
+  const [pemilihPollingId, setPemilihPollingId] = useState(null);
+  const [loadingPemilih, setLoadingPemilih] = useState(false);
 
   const [judul, setJudul] = useState("");
 
   const [pilihan, setPilihan] = useState(["", ""]);
   useEffect(() => {
     const loadPolling = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from("polling")
         .select("*")
         .order("tanggal_mulai", { ascending: false });
@@ -2119,7 +3094,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
         console.error("Gagal memuat data polling:", error);
         setLoadingPolling(false);
         return;
-      }   
+      }
 
       setDataPolling(data || []);
       setLoadingPolling(false);
@@ -2141,12 +3116,16 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
   };
 
   const lihatPemilih = async (pollingId) => {
-   
     setPemilihPollingId(pollingId);
     setLoadingPemilih(true);
     setPemilihPolling([]);
 
-    const { data, error } = await supabase
+    const { data: sesiAdmin } = await supabaseAdmin.auth.getSession();
+
+    console.log("SESI SAAT MEMBACA SUARA:", sesiAdmin.session);
+    console.log("USER ID SAAT MEMBACA SUARA:", sesiAdmin.session?.user?.id);
+
+    const { data, error } = await supabaseAdmin
       .from("polling_suara")
       .select(
         `
@@ -2160,6 +3139,9 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
       .eq("polling_id", pollingId)
       .order("created_at", { ascending: true });
 
+    console.log("JUMLAH SUARA TERBACA ADMIN:", data?.length);
+    console.log("ERROR BACA SUARA ADMIN:", error);
+
     if (error) {
       console.error("Gagal mengambil data pemilih:", error);
       alert(`Data pemilih gagal dimuat.\n\n${error.message}`);
@@ -2167,24 +3149,21 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
       return;
     }
 
-    
     const wargaIds = [
       ...new Set((data || []).map((item) => item.warga_id).filter(Boolean)),
     ];
 
-   
-
     const { data: wargaData, error: wargaError } = await supabase
       .from("warga")
-      .select("auth_user_id, nama")
-      .in("auth_user_id", wargaIds);
+      .select("id, nama")
+      .in("id", wargaIds);
 
     if (wargaError) {
       console.error("Gagal mengambil data warga:", wargaError);
       alert(`Data nama warga gagal dimuat.\n\n${wargaError.message}`);
       setLoadingPemilih(false);
       return;
-    }    
+    }
 
     const pilihanIds = [
       ...new Set((data || []).map((item) => item.pilihan_id).filter(Boolean)),
@@ -2205,7 +3184,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
     console.log("DATA PILIHAN PEMILIH:", pilihanData);
 
     const wargaMap = Object.fromEntries(
-      (wargaData || []).map((warga) => [warga.auth_user_id, warga.nama]),
+      (wargaData || []).map((warga) => [String(warga.id), warga.nama]),
     );
 
     const pilihanMap = Object.fromEntries(
@@ -2214,7 +3193,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
 
     const hasilPemilih = (data || []).map((suara) => ({
       ...suara,
-      nama_warga: wargaMap[suara.warga_id] || "Warga tidak ditemukan",
+      nama_warga: wargaMap[String(suara.warga_id)] || "Warga tidak ditemukan",
       jawaban: pilihanMap[suara.pilihan_id] || "Pilihan tidak ditemukan",
     }));
 
@@ -2224,7 +3203,6 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
 
   const simpanPolling = async () => {
     const { data: sessionData } = await supabase.auth.getSession();
-
 
     const judulBersih = judul.trim();
 
@@ -2240,7 +3218,6 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
       return;
     }
     if (editingId) {
-
       const { error: updateError } = await supabase
         .from("polling")
         .update({
@@ -2303,7 +3280,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
       return;
     }
 
-    const { data: pollingBaru, error: pollingError } = await supabase
+    const { data: pollingBaru, error: pollingError } = await supabaseAdmin
       .from("polling")
       .insert({
         judul: judulBersih,
@@ -2334,7 +3311,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
       urutan: index + 1,
     }));
 
-    const { error: pilihanError } = await supabase
+    const { error: pilihanError } = await supabaseAdmin
       .from("polling_pilihan")
       .insert(dataPilihan);
 
@@ -2348,7 +3325,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
 
     alert("Polling berhasil dibuat.");
 
-    const { data: pollingTerbaru, error: reloadError } = await supabase
+    const { data: pollingTerbaru, error: reloadError } = await supabaseAdmin
       .from("polling")
       .select("*")
       .order("tanggal_mulai", { ascending: false });
@@ -2415,7 +3392,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
                       onClick={async () => {
                         if (item.aktif) {
                           // Menonaktifkan polling ini
-                          const { error } = await supabase
+                          const { error } = await supabaseAdmin
                             .from("polling")
                             .update({
                               aktif: false,
@@ -2466,7 +3443,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
                         }
 
                         // Aktifkan polling yang dipilih
-                        const { error: aktifkanError } = await supabase
+                        const { error: aktifkanError } = await supabaseAdmin
                           .from("polling")
                           .update({
                             aktif: true,
@@ -2480,6 +3457,27 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
                           );
                           alert(
                             `Polling gagal diaktifkan.\n\n${aktifkanError.message}`,
+                          );
+                          return;
+                        }
+
+                        // Verifikasi status polling langsung dari Supabase
+                        const { data: cekAktif, error: cekError } =
+                          await supabaseAdmin
+                            .from("polling")
+                            .select("id, judul, aktif")
+                            .eq("id", item.id)
+                            .single();
+
+                        console.log(
+                          "HASIL CEK POLLING AKTIF:",
+                          JSON.stringify(cekAktif, null, 2),
+                        );
+                        console.log("ERROR CEK POLLING:", cekError);
+
+                        if (cekError || !cekAktif || cekAktif.aktif !== true) {
+                          alert(
+                            "Status aktif polling belum berhasil diverifikasi. Periksa Console.",
                           );
                           return;
                         }
@@ -2508,7 +3506,6 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
                       type="button"
                       className="admin-secondary-button"
                       onClick={async () => {
-
                         const { data: pilihanData, error } = await supabase
                           .from("polling_pilihan")
                           .select("*")
@@ -2548,7 +3545,7 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
 
                         console.log("MENGHAPUS POLLING:", item.id);
 
-                        const { error } = await supabase
+                        const { error } = await supabaseAdmin
                           .from("polling")
                           .delete()
                           .eq("id", item.id);
@@ -2570,53 +3567,55 @@ const [loadingPemilih, setLoadingPemilih] = useState(false);
                     </button>
                   </div>
 
-                 {pemilihPollingId === item.id &&
-  pemilihPolling !== null && (
-    <div className="admin-polling-voters">
-      <div className="admin-polling-voters-header">
-        <strong>👥 Daftar Warga yang Mengisi Polling</strong>
+                  {pemilihPollingId === item.id && pemilihPolling !== null && (
+                    <div className="admin-polling-voters">
+                      <div className="admin-polling-voters-header">
+                        <strong>👥 Daftar Warga yang Mengisi Polling</strong>
 
-        <button
-          type="button"
-          className="admin-secondary-button"
-          onClick={() => setPemilihPolling(null)}
-        >
-          ✕ Tutup
-        </button>
-      </div>
+                        <button
+                          type="button"
+                          className="admin-secondary-button"
+                          onClick={() => setPemilihPolling(null)}
+                        >
+                          ✕ Tutup
+                        </button>
+                      </div>
 
-      {loadingPemilih ? (
-  <p>⏳ Memuat data pemilih...</p>
-) : pemilihPolling.length === 0 ? (
-  <p className="admin-polling-no-voters">
-    Belum ada warga yang mengisi polling ini.
-  </p>
-) : (
-  <div className="admin-polling-voters-list">
-    {pemilihPolling.map((pemilih, index) => (
-      <div
-        key={pemilih.id}
-        className="admin-polling-voter-item"
-      >
-        <div>
-          <strong>
-            {index + 1}. {pemilih.nama_warga}
-          </strong>
+                      {loadingPemilih ? (
+                        <p>⏳ Memuat data pemilih...</p>
+                      ) : pemilihPolling.length === 0 ? (
+                        <p className="admin-polling-no-voters">
+                          Belum ada warga yang mengisi polling ini.
+                        </p>
+                      ) : (
+                        <div className="admin-polling-voters-list">
+                          {pemilihPolling.map((pemilih, index) => (
+                            <div
+                              key={pemilih.id}
+                              className="admin-polling-voter-item"
+                            >
+                              <div>
+                                <strong>
+                                  {index + 1}. {pemilih.nama_warga}
+                                </strong>
 
-          <div>
-            Jawaban: <strong>{pemilih.jawaban}</strong>
-          </div>
-        </div>
+                                <div>
+                                  Jawaban: <strong>{pemilih.jawaban}</strong>
+                                </div>
+                              </div>
 
-        <small>
-          {new Date(pemilih.created_at).toLocaleString("id-ID")}
-        </small>
-      </div>
-    ))}
-  </div>
-)}
-    </div>
-  )}     
+                              <small>
+                                {new Date(pemilih.created_at).toLocaleString(
+                                  "id-ID",
+                                )}
+                              </small>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
 
                 </div>
               ))}
