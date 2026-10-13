@@ -7,6 +7,7 @@ import RencanaKegiatan from "./pages/RencanaKegiatan";
 import KegiatanSelesai from "./pages/KegiatanSelesai";
 import TanyaAI from "./pages/TanyaAI";
 import Polling from "./pages/Polling";
+import PengaduanWarga from "./pages/PengaduanWarga";
 import RuangWarga from "./pages/RuangWarga";
 import Admin from "./pages/Admin";
 import LoginWarga from "./pages/LoginWarga";
@@ -86,6 +87,11 @@ function App() {
 
       case "polling":
         return <Polling adminLogin={adminLogin} wargaLogin={wargaLogin} />;
+
+        
+case "pengaduan":
+  return <PengaduanWarga wargaLogin={wargaLogin} />;
+
 
       case "ruang-warga":
         return <RuangWarga wargaLogin={wargaLogin} adminLogin={adminLogin} />;
@@ -206,6 +212,15 @@ function App() {
           >
             🗳️ Polling
           </button>
+
+          
+<button
+  className={activePage === "pengaduan" ? "menu-aktif" : ""}
+  onClick={() => setActivePage("pengaduan")}
+>
+  📣 Pengaduan Warga
+</button>
+
 
           <button
             className={activePage === "ruang-warga" ? "menu-aktif" : ""}

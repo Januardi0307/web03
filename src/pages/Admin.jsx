@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useRTData } from "../context/RTDataContext";
 import AdminDataRT from "./AdminDataRT";
+import AdminKontakPenting from "./AdminKontakPenting";
+import AdminPengaduan from "./AdminPengaduan";
 import { supabase } from "../lib/supabase";
 import { supabaseAdmin } from "../lib/supabaseAdmin";
 
@@ -64,8 +66,14 @@ function Admin({ onLogout, adminUser }) {
       case "polling":
         return <AdminPolling />;
 
+      case "pengaduan":
+        return <AdminPengaduan />;
+
       case "aktivasi":
         return <AdminAktivasi />;
+
+      case "kontakPenting":
+        return <AdminKontakPenting />;
 
       case "resetPassword":
         return <AdminResetPassword />;
@@ -160,6 +168,13 @@ function Admin({ onLogout, adminUser }) {
           </button>
 
           <button
+            className={activeMenu === "pengaduan" ? "active" : ""}
+            onClick={() => setActiveMenu("pengaduan")}
+          >
+            📣 Pengaduan Warga
+          </button>
+
+          <button
             className={activeMenu === "aktivasi" ? "active" : ""}
             onClick={() => setActiveMenu("aktivasi")}
           >
@@ -171,6 +186,13 @@ function Admin({ onLogout, adminUser }) {
             onClick={() => setActiveMenu("resetPassword")}
           >
             🔐 Reset Password Warga
+          </button>
+
+          <button
+            className={activeMenu === "kontakPenting" ? "active" : ""}
+            onClick={() => setActiveMenu("kontakPenting")}
+          >
+            📞 Kontak Penting
           </button>
         </div>
 
@@ -1100,7 +1122,6 @@ function AdminAktivasi() {
    DASHBOARD
 ===================================================== */
 
-
 function AdminDashboard({
   setActiveMenu,
   jumlahPengumuman,
@@ -1108,7 +1129,6 @@ function AdminDashboard({
   jumlahSelesai,
   namaAdmin,
 }) {
-
   return (
     <div>
       <div className="admin-topbar">
@@ -1117,13 +1137,13 @@ function AdminDashboard({
           <h2>Dashboard RT</h2>
         </div>
 
-<div className="admin-user">👤 {namaAdmin}</div>
-<h3>Selamat datang, {namaAdmin} 👋</h3>
+        <div className="admin-user">👤 {namaAdmin}</div>
+        <h3>Selamat datang, {namaAdmin} 👋</h3>
       </div>
 
       <div className="admin-welcome">
         <div className="admin-user">👤 {namaAdmin}</div>
-<h3>Selamat datang, {namaAdmin} 👋</h3>
+        <h3>Selamat datang, {namaAdmin} 👋</h3>
 
         <p>
           Kelola informasi dan kegiatan warga RT 03 / RW 07 Karet Setiabudi
@@ -2578,7 +2598,7 @@ function AdminSelesai() {
                     <img
                       src={item.fotoUrl}
                       alt="Dokumentasi kegiatan"
-                     className="completed-photo"
+                      className="completed-photo"
                     />
                   )
                 )}
@@ -2628,142 +2648,139 @@ function AdminSelesai() {
                   Edit
                 </button>
 
+                <button
+                  type="button"
+                  className="btn-delete"
+                  onClick={async () => {
+                    const yakin = window.confirm(
+                      "Apakah Anda yakin ingin menghapus dokumentasi kegiatan ini beserta foto-fotonya?",
+                    );
 
+                    if (!yakin) return;
 
-<button
-  type="button"
-  className="btn-delete"
-  onClick={async () => {
-    const yakin = window.confirm(
-      "Apakah Anda yakin ingin menghapus dokumentasi kegiatan ini beserta foto-fotonya?"
-    );
+                    try {
+                      // 1. Ambil data kegiatan sebelum dihapus
+                      const { data: kegiatan, error: kegiatanError } =
+                        await supabase
+                          .from("kegiatan_selesai")
+                          .select("id, foto_url")
+                          .eq("id", item.id)
+                          .single();
 
-    if (!yakin) return;
+                      if (kegiatanError) throw kegiatanError;
 
-    try {
-      // 1. Ambil data kegiatan sebelum dihapus
-      const { data: kegiatan, error: kegiatanError } =
-        await supabase
-          .from("kegiatan_selesai")
-          .select("id, foto_url")
-          .eq("id", item.id)
-          .single();
+                      // 2. Ambil seluruh foto tambahan
+                      const { data: fotoTambahan, error: fotoError } =
+                        await supabase
+                          .from("kegiatan_selesai_foto")
+                          .select("id, foto_url, kegiatan_id")
+                          .eq("kegiatan_id", item.id);
 
-      if (kegiatanError) throw kegiatanError;
+                      if (fotoError) throw fotoError;
 
-      // 2. Ambil seluruh foto tambahan
-      const { data: fotoTambahan, error: fotoError } =
-        await supabase
-          .from("kegiatan_selesai_foto")
-          .select("id, foto_url, kegiatan_id")
-          .eq("kegiatan_id", item.id);
+                      const semuaUrl = [
+                        kegiatan?.foto_url,
+                        ...(fotoTambahan || []).map((foto) => foto.foto_url),
+                      ].filter(Boolean);
 
-      if (fotoError) throw fotoError;
+                      const urlUnik = [...new Set(semuaUrl)];
+                      const fileYangAkanDihapus = [];
 
-      const semuaUrl = [
-        kegiatan?.foto_url,
-        ...(fotoTambahan || []).map((foto) => foto.foto_url),
-      ].filter(Boolean);
+                      // 3. Periksa apakah foto masih digunakan kegiatan lain
+                      for (const fotoUrl of urlUnik) {
+                        const { data: kegiatanLain, error: cekKegiatanError } =
+                          await supabase
+                            .from("kegiatan_selesai")
+                            .select("id")
+                            .eq("foto_url", fotoUrl)
+                            .neq("id", item.id)
+                            .limit(1);
 
-      const urlUnik = [...new Set(semuaUrl)];
-      const fileYangAkanDihapus = [];
+                        if (cekKegiatanError) throw cekKegiatanError;
 
-      // 3. Periksa apakah foto masih digunakan kegiatan lain
-      for (const fotoUrl of urlUnik) {
-        const { data: kegiatanLain, error: cekKegiatanError } =
-          await supabase
-            .from("kegiatan_selesai")
-            .select("id")
-            .eq("foto_url", fotoUrl)
-            .neq("id", item.id)
-            .limit(1);
+                        const { data: fotoLain, error: cekFotoError } =
+                          await supabase
+                            .from("kegiatan_selesai_foto")
+                            .select("id, kegiatan_id")
+                            .eq("foto_url", fotoUrl);
 
-        if (cekKegiatanError) throw cekKegiatanError;
+                        if (cekFotoError) throw cekFotoError;
 
-        const { data: fotoLain, error: cekFotoError } =
-          await supabase
-            .from("kegiatan_selesai_foto")
-            .select("id, kegiatan_id")
-            .eq("foto_url", fotoUrl);
+                        const dipakaiKegiatanLain =
+                          (kegiatanLain || []).length > 0 ||
+                          (fotoLain || []).some(
+                            (foto) =>
+                              String(foto.kegiatan_id) !== String(item.id),
+                          );
 
-        if (cekFotoError) throw cekFotoError;
+                        if (dipakaiKegiatanLain) continue;
 
-        const dipakaiKegiatanLain =
-          (kegiatanLain || []).length > 0 ||
-          (fotoLain || []).some(
-            (foto) => String(foto.kegiatan_id) !== String(item.id)
-          );
+                        // Hanya proses URL dari bucket kegiatan-selesai
+                        const url = new URL(fotoUrl);
+                        const marker =
+                          "/storage/v1/object/public/kegiatan-selesai/";
+                        const posisi = url.pathname.indexOf(marker);
 
-        if (dipakaiKegiatanLain) continue;
+                        if (posisi === -1) {
+                          console.warn(
+                            "URL bukan dari bucket kegiatan-selesai, dilewati:",
+                            fotoUrl,
+                          );
+                          continue;
+                        }
 
-        // Hanya proses URL dari bucket kegiatan-selesai
-        const url = new URL(fotoUrl);
-        const marker =
-          "/storage/v1/object/public/kegiatan-selesai/";
-        const posisi = url.pathname.indexOf(marker);
+                        const filePath = decodeURIComponent(
+                          url.pathname.substring(posisi + marker.length),
+                        );
 
-        if (posisi === -1) {
-          console.warn(
-            "URL bukan dari bucket kegiatan-selesai, dilewati:",
-            fotoUrl
-          );
-          continue;
-        }
+                        if (filePath) {
+                          fileYangAkanDihapus.push(filePath);
+                        }
+                      }
 
-        const filePath = decodeURIComponent(
-          url.pathname.substring(posisi + marker.length)
-        );
+                      // 4. Hapus foto dari Storage terlebih dahulu
+                      const daftarFileUnik = [...new Set(fileYangAkanDihapus)];
 
-        if (filePath) {
-          fileYangAkanDihapus.push(filePath);
-        }
-      }
+                      if (daftarFileUnik.length > 0) {
+                        const { error: hapusStorageError } =
+                          await supabase.storage
+                            .from("kegiatan-selesai")
+                            .remove(daftarFileUnik);
 
-      // 4. Hapus foto dari Storage terlebih dahulu
-      const daftarFileUnik = [...new Set(fileYangAkanDihapus)];
+                        if (hapusStorageError) {
+                          throw hapusStorageError;
+                        }
+                      }
 
-      if (daftarFileUnik.length > 0) {
-        const { error: hapusStorageError } =
-          await supabase.storage
-            .from("kegiatan-selesai")
-            .remove(daftarFileUnik);
+                      // 5. Hapus kegiatan dari database
+                      // Foto tambahan ikut terhapus melalui ON DELETE CASCADE
+                      const { error: hapusKegiatanError } = await supabase
+                        .from("kegiatan_selesai")
+                        .delete()
+                        .eq("id", item.id);
 
-        if (hapusStorageError) {
-          throw hapusStorageError;
-        }
-      }
+                      if (hapusKegiatanError) throw hapusKegiatanError;
 
-      // 5. Hapus kegiatan dari database
-      // Foto tambahan ikut terhapus melalui ON DELETE CASCADE
-      const { error: hapusKegiatanError } = await supabase
-        .from("kegiatan_selesai")
-        .delete()
-        .eq("id", item.id);
+                      // 6. Perbarui tampilan tanpa refresh
+                      setCompletedActivities((prev) =>
+                        prev.filter(
+                          (activity) => String(activity.id) !== String(item.id),
+                        ),
+                      );
 
-      if (hapusKegiatanError) throw hapusKegiatanError;
+                      alert("Dokumentasi kegiatan berhasil dihapus.");
+                    } catch (error) {
+                      console.error("Gagal menghapus dokumentasi:", error);
 
-      // 6. Perbarui tampilan tanpa refresh
-      setCompletedActivities((prev) =>
-        prev.filter(
-          (activity) => String(activity.id) !== String(item.id)
-        )
-      );
-
-      alert("Dokumentasi kegiatan berhasil dihapus.");
-    } catch (error) {
-      console.error("Gagal menghapus dokumentasi:", error);
-
-      alert(
-        "Penghapusan dokumentasi mengalami kendala.\n\n" +
-          error.message
-      );
-    }
-  }}
->
-  Hapus
-</button>
-
-
+                      alert(
+                        "Penghapusan dokumentasi mengalami kendala.\n\n" +
+                          error.message,
+                      );
+                    }
+                  }}
+                >
+                  Hapus
+                </button>
               </div>
             </div>
           ))}
@@ -3615,8 +3632,6 @@ function AdminPolling() {
                       )}
                     </div>
                   )}
-
-
                 </div>
               ))}
             </div>

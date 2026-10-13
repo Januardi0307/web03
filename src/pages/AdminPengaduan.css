@@ -1,0 +1,136 @@
+/* ADMIN PENGADUAN WARGA */
+
+.admin-pengaduan {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  color: #243247;
+  box-sizing: border-box;
+}
+
+.admin-pengaduan h2 {
+  margin: 0 0 8px;
+  color: #183b64;
+  font-size: 1.65rem;
+  font-weight: 750;
+}
+
+.admin-pengaduan > p {
+  margin: 0 0 18px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.admin-pengaduan > button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-pengaduan > button:hover {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+.admin-pengaduan article {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 5%);
+  overflow-wrap: anywhere;
+}
+
+.admin-pengaduan article h3 {
+  margin: 0 0 14px;
+  color: #183b64;
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.admin-pengaduan article p {
+  margin: 9px 0;
+  color: #475569;
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.admin-pengaduan article strong {
+  color: #334155;
+}
+
+.admin-pengaduan article div {
+  margin-top: 18px;
+}
+
+.admin-pengaduan article button {
+  min-height: 38px;
+  padding: 9px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-pengaduan article button:hover:not(:disabled) {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.admin-pengaduan button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-pengaduan button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .admin-pengaduan {
+    padding: 16px;
+  }
+
+  .admin-pengaduan h2 {
+    font-size: 1.4rem;
+  }
+
+  .admin-pengaduan article {
+    padding: 16px;
+  }
+
+  .admin-pengaduan article div {
+    gap: 8px;
+  }
+
+  .admin-pengaduan article button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-pengaduan {
+    padding: 12px;
+  }
+
+  .admin-pengaduan article {
+    padding: 14px;
+    border-radius: 11px !important;
+  }
+
+  .admin-pengaduan article button {
+    width: 100%;
+  }
+}
