@@ -797,23 +797,54 @@ button {
   display: flex;
   gap: 15px;
   align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* WARNA DASAR 4 KARTU STATISTIK */
+.stats-grid > .stat-card:nth-child(1) {
+  background: #e3f2fd;
+  border-color: #bbdefb;
+}
+
+.stats-grid > .stat-card:nth-child(2) {
+  background: #e8f5e9;
+  border-color: #c8e6c9;
+}
+
+.stats-grid > .stat-card:nth-child(3) {
+  background: #fff3e0;
+  border-color: #ffe0b2;
+}
+
+.stats-grid > .stat-card:nth-child(4) {
+  background: #f3e5f5;
+  border-color: #e1bee7;
+}
+
+/* IKON */
 .stat-card > span {
   font-size: 28px;
 }
 
+/* LABEL */
 .stat-card small {
   display: block;
-  color: #78909c;
+  color: #546e7a;
   font-size: 12px;
   margin-bottom: 5px;
 }
 
+/* ANGKA */
 .stat-card strong {
   font-size: 25px;
+  color: #263238;
 }
 
+/* EFEK SAAT DISOROT */
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+}
 
 /* QUICK ACTION */
 
@@ -947,7 +978,7 @@ button {
 .admin-form input,
 .admin-form textarea {
   width: 100%;
-  border: 1px solid #d8dde0;
+  border: 1px solid #dfdcd8;
   border-radius: 8px;
   padding: 12px 14px;
   font-family: inherit;
@@ -968,6 +999,7 @@ button {
   margin-top: 25px;
   display: flex;
   gap: 10px;
+  
 }
 
 .btn-save,
@@ -1108,6 +1140,8 @@ button {
 
 .announcement-card-content {
   flex: 1;
+   background: #e3f2fd;
+  border: 1px solid #bbdefb;
 }
 
 .completed-photo {

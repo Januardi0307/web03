@@ -14,8 +14,31 @@ function Admin({ onLogout, adminUser }) {
       ? "RT"
       : "Admin RT";
   const [activeMenu, setActiveMenu] = useState("dashboard");
-
+  const [jumlahPengaduan, setJumlahPengaduan] = useState(0);
   const { announcements, activities, completedActivities } = useRTData();
+
+  // HITUNG JUMLAH PENGADUAN WARGA
+useEffect(() => {
+  const muatJumlahPengaduan = async () => {
+    console.log("USE EFFECT PENGADUAN BERJALAN");
+
+    const { count, error } = await supabaseAdmin
+      .from("pengaduan_warga")
+      .select("*", { count: "exact", head: true });
+
+    console.log("JUMLAH PENGADUAN DARI SUPABASE:", count);
+    console.log("ERROR HITUNG PENGADUAN:", error);
+
+    if (error) {
+      console.error("Gagal menghitung pengaduan:", error);
+      return;
+    }
+
+    setJumlahPengaduan(count ?? 0);
+  };
+
+  muatJumlahPengaduan();
+}, []);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -88,6 +111,7 @@ function Admin({ onLogout, adminUser }) {
             jumlahPengumuman={activeAnnouncements.length}
             jumlahRencana={activeActivities.length}
             jumlahSelesai={recentCompletedActivities.length}
+            jumlahPengaduan={jumlahPengaduan}
             namaAdmin={namaAdmin}
           />
         );
@@ -1127,6 +1151,7 @@ function AdminDashboard({
   jumlahPengumuman,
   jumlahRencana,
   jumlahSelesai,
+  jumlahPengaduan,
   namaAdmin,
 }) {
   return (
@@ -1156,7 +1181,7 @@ function AdminDashboard({
           <span>📢</span>
           <div>
             <small>Pengumuman</small>
-            <strong>{jumlahRencana}</strong>
+            <strong>{jumlahPengumuman}</strong>
           </div>
         </div>
 
@@ -1175,6 +1200,18 @@ function AdminDashboard({
             <strong>{jumlahSelesai}</strong>
           </div>
         </div>
+
+        <button
+          type="button"
+          className="stat-card"
+          onClick={() => setActiveMenu("pengaduan")}
+        >
+          <span>📣</span>
+          <div>
+            <small>Pengaduan Warga</small>
+            <strong>{jumlahPengaduan}</strong>
+          </div>
+        </button>
       </div>
 
       <div className="quick-actions">
@@ -1194,6 +1231,11 @@ function AdminDashboard({
           <button onClick={() => setActiveMenu("polling")}>
             🗳️
             <span>Buat Polling</span>
+          </button>
+
+          <button onClick={() => setActiveMenu("pengaduan")}>
+            📣
+            <span>Pengaduan Warga</span>
           </button>
         </div>
       </div>
@@ -1910,6 +1952,8 @@ function AdminSelesai() {
     loadCompletedActivities();
   }, [setCompletedActivities]);
 
+ 
+
   const [editingId, setEditingId] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [existingPhotos, setExistingPhotos] = useState([]);
@@ -2311,7 +2355,6 @@ function AdminSelesai() {
                 }
               }
             }
-
             /* =====================================================
    UPDATE TAMPILAN ADMIN
 ===================================================== */
