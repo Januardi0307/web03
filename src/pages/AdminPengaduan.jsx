@@ -122,6 +122,69 @@ export default function AdminPengaduan() {
     }
   }
 
+  // HAPUS PENGADUAN WARGA
+  async function hapusPengaduan(item) {
+    console.log("TOMBOL HAPUS DIKLIK:", item.id, item.judul);
+    const yakin = window.confirm(
+      `Yakin ingin menghapus pengaduan "${item.judul}" dari ${item.nama_pelapor}?\n\nData yang dihapus tidak dapat dikembalikan.`
+    );
+    console.log("HASIL KONFIRMASI:", yakin);
+
+    if (!yakin) return;
+
+    setProsesId(item.id);
+    setPesan("");
+
+    try {
+      const { data: dataTerhapus, error } = await supabaseAdmin
+  .from("pengaduan_warga")
+  .delete()
+  .eq("id", item.id)
+  .select("id, judul");
+
+console.log("DATA YANG BERHASIL DIHAPUS:", dataTerhapus);
+console.log("ERROR HAPUS:", error);
+
+if (error) {
+  console.error("Gagal menghapus pengaduan:", error);
+  setPesan("Pengaduan gagal dihapus. Periksa izin database.");
+  return;
+}
+
+if (!dataTerhapus || dataTerhapus.length === 0) {
+  setPesan(
+    "Data tidak terhapus di database. Periksa izin DELETE atau kebijakan RLS."
+  );
+  return;
+}
+
+      if (error) {
+        console.error("Gagal menghapus pengaduan:", error);
+        setPesan(
+          "Pengaduan gagal dihapus. Periksa izin penghapusan di database."
+        );
+        return;
+      }
+
+      if (editId === item.id) {
+        setEditId("");
+        setCatatanDraft("");
+      }
+
+      setPengaduan((daftar) =>
+        daftar.filter((pengaduan) => pengaduan.id !== item.id)
+      );
+
+      setPesan("Pengaduan berhasil dihapus.");
+    } catch (error) {
+      console.error("Kesalahan menghapus pengaduan:", error);
+      setPesan("Terjadi kesalahan saat menghapus pengaduan.");
+    } finally {
+      setProsesId("");
+    }
+  }
+
+
   return (
     <div className="admin-pengaduan">
       <h2>📣 Pengaduan Warga</h2>
@@ -211,6 +274,25 @@ export default function AdminPengaduan() {
                 </button>
               ))}
             </div>
+
+
+            <button
+              type="button"
+              disabled={prosesId === item.id}
+              onClick={() => hapusPengaduan(item)}
+              style={{
+                marginTop: "10px",
+                background: "#dc2626",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                padding: "9px 14px",
+                cursor: prosesId === item.id ? "not-allowed" : "pointer",
+              }}
+            >
+              {prosesId === item.id ? "Memproses..." : "Hapus Pengaduan"}
+            </button>
+
 
             {editId === item.id && (
               <div

@@ -8,7 +8,11 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const ADMIN_USER_ID = "a103eb93-e739-4892-9965-9d474fbac653";
+// IZIN AKTIVASI AKUN WARGA UNTUK ADMIN RT DAN RT
+const ADMIN_USER_IDS = [
+  "a103eb93-e739-4892-9965-9d474fbac653", // Admin RT
+  "b9cc9364-78d5-40d1-929c-4fb040a38217", // Akun RT
+];
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -67,9 +71,9 @@ Deno.serve(async (req: Request) => {
   return jsonResponse({ error: "Sesi login tidak valid." }, 401);
 }
 
-if (userData.user.id !== ADMIN_USER_ID) {
-  console.error("AKTIVASI: UID ADMIN TIDAK COCOK");
-  return jsonResponse({ error: "Akses khusus Admin." }, 403);
+if (!ADMIN_USER_IDS.includes(userData.user.id)) {
+  console.error("AKTIVASI: UID TIDAK DIIZINKAN");
+  return jsonResponse({ error: "Akses khusus Admin/RT." }, 403);
 }
 
 console.log("AKTIVASI: PEMERIKSAAN ADMIN BERHASIL");
